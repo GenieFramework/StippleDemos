@@ -1,0 +1,22 @@
+[deps]
+Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+GenieAutoReload = "c6228e60-a24f-11e9-1776-c313472ebacc"
+RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StippleCharts = "30ddb3f0-912f-4f34-9804-e4bb31290777"
+StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+
+[compat]
+Clustering = "0.14"
+DataFrames = "0.21"
+Genie = "1.7"
+GenieAutoReload = "0.2"
+RDatasets = "0.6"
+Revise = "3"
+Stipple = "0.5"
+StippleCharts = "0.3"
+StippleUI = "0.2"
+julia = "1"
