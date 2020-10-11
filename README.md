@@ -31,3 +31,5 @@ This repository includes a collection of Stipple demo application.
 ```julia
 julia> include("IrisClustering.jl") # swap "IrisClustering.jl" with any other demo
 ```
+
+Upon starting the application, a browser window should automatically open with the demo dashboard.

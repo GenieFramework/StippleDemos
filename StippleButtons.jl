@@ -1,22 +1,18 @@
 using Stipple
 using StippleUI
 
-# Uncomment for autoreload functionality in the browser
-# using GenieAutoReload
-# autoreload(pwd())
-
-Base.@kwdef mutable struct Model <: ReactiveModel
+Base.@kwdef mutable struct SBModel <: ReactiveModel
   clicks::R{Int} = 0
   value::R{Int} = 0
 end
 
-const model = Stipple.init(Model(), debounce = 0)
+const sb_model = Stipple.init(SBModel(), debounce = 0)
 
-on(model.value) do (_...)
-  model.clicks[] += 1
+on(sb_model.value) do (_...)
+  sb_model.clicks[] += 1
 end
 
-function ui(model::Model)
+function ui(model::SBModel)
   [
   dashboard(
     vm(model), class="container", title="Buttons demo",
@@ -43,13 +39,11 @@ function ui(model::Model)
       ])
     ]
   )
-  # Uncomment for autoreload functionality in the browser
-  # GenieAutoReload.assets()
   ]
 end
 
 route("/") do
-  ui(model) |> html
+  ui(sb_model) |> html
 end
 
 up(rand((8000:9000)), open_browser=true)

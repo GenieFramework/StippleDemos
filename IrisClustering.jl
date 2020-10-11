@@ -6,15 +6,11 @@ using Clustering
 import RDatasets: dataset
 import DataFrames
 
-# Uncomment for autoreload functionality in the browser
-# using GenieAutoReload
-# autoreload(pwd())
-
 #= Data =#
 
 data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int, 150))
 
-Base.@kwdef mutable struct Model <: ReactiveModel
+Base.@kwdef mutable struct IrisModel <: ReactiveModel
   iris_data::R{DataTable} = DataTable(data)
   credit_data_pagination::DataTablePagination = DataTablePagination(rows_per_page=50)
 
@@ -33,21 +29,21 @@ end
 
 #= Stipple setup =#
 
-Stipple.register_components(Model, StippleCharts.COMPONENTS)
-const model = Stipple.init(Model())
+Stipple.register_components(IrisModel, StippleCharts.COMPONENTS)
+const ic_model = Stipple.init(IrisModel())
 
 #= Computation =#
 
 function plot_data(cluster_column::Symbol)
   result = Vector{PlotSeries}()
-  isempty(model.xfeature[]) || isempty(model.yfeature[]) && return result
+  isempty(ic_model.xfeature[]) || isempty(ic_model.yfeature[]) && return result
 
   dimensions = Dict()
   for s in Array(data[:, cluster_column]) |> unique!
     dimensions[s] = []
 
     for r in eachrow(data[data[cluster_column] .== s, :])
-      push!(dimensions[s], [r[Symbol(model.xfeature[])], r[Symbol(model.yfeature[])]])
+      push!(dimensions[s], [r[Symbol(ic_model.xfeature[])], r[Symbol(ic_model.yfeature[])]])
     end
 
     push!(result, PlotSeries("$s", PlotData(dimensions[s])))
@@ -57,32 +53,32 @@ function plot_data(cluster_column::Symbol)
 end
 
 function compute_clusters!()
-  features = collect(Matrix(data[:, [Symbol(c) for c in model.clustering_features[]]])')
-  result = kmeans(features, model.no_of_clusters[]; maxiter=model.no_of_iterations[])
+  features = collect(Matrix(data[:, [Symbol(c) for c in ic_model.clustering_features[]]])')
+  result = kmeans(features, ic_model.no_of_clusters[]; maxiter=ic_model.no_of_iterations[])
   data[:Cluster] = assignments(result)
-  model.iris_data[] = DataTable(data)
-  model.cluster_plot_data[] = plot_data(:Cluster)
+  ic_model.iris_data[] = DataTable(data)
+  ic_model.cluster_plot_data[] = plot_data(:Cluster)
 
   nothing
 end
 
 #= Event handlers =#
 
-onany(model.xfeature, model.yfeature) do (_...)
-  model.iris_plot_data[] = plot_data(:Species)
+onany(ic_model.xfeature, ic_model.yfeature) do (_...)
+  ic_model.iris_plot_data[] = plot_data(:Species)
   compute_clusters!()
 end
 
-onany(model.no_of_clusters, model.no_of_iterations, model.clustering_features) do (_...)
+onany(ic_model.no_of_clusters, ic_model.no_of_iterations, ic_model.clustering_features) do (_...)
   compute_clusters!()
 end
 
 #= UI =#
 
-function ui(model::Model)
+function ui(model::IrisModel)
   [
   dashboard(
-    root(model), class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
+    vm(model), class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
     [
       heading("Iris data k-means clustering")
 
@@ -137,15 +133,13 @@ function ui(model::Model)
     ])
     ]
   )
-  # Uncomment for autoreload functionality in the browser
-  # GenieAutoReload.assets()
   ]
 end
 
 #= routing =#
 
 route("/") do
-  ui(model) |> html
+  ui(ic_model) |> html
 end
 
 #= start server =#

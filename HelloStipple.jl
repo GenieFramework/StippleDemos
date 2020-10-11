@@ -1,19 +1,15 @@
 using Stipple
 
-# Uncomment for autoreload functionality in the browser
-# using GenieAutoReload
-# autoreload(pwd())
-
 Base.@kwdef mutable struct Name <: ReactiveModel
   name::R{String} = "Stipple!"
 end
 
-model = Stipple.init(Name())
+hs_model = Stipple.init(Name())
 
 function ui()
   [
     page(
-      vm(model), class="container", title="Hello Stipple",
+      vm(hs_model), class="container", title="Hello Stipple",
       [
         h1([
           "Hello, "
@@ -26,8 +22,6 @@ function ui()
         ])
       ]
     )
-    # Uncomment for autoreload functionality in the browser
-    # GenieAutoReload.assets()
   ] |> html
 end
 

@@ -1,28 +1,24 @@
 using Stipple
 
-# Uncomment for autoreload functionality in the browser
-# using GenieAutoReload
-# autoreload(pwd())
-
-Base.@kwdef mutable struct Model <: ReactiveModel
+Base.@kwdef mutable struct RTModel <: ReactiveModel
   process::R{Bool} = false
   output::R{String} = ""
   input::R{String} = "Stipple"
 end
 
-model = Stipple.init(Model())
+rt_model = Stipple.init(RTModel())
 
-on(model.process) do _
-  if (model.process[])
-    model.output[] = model.input[] |> reverse
-    model.process[] = false
+on(rt_model.process) do _
+  if (rt_model.process[])
+    rt_model.output[] = rt_model.input[] |> reverse
+    rt_model.process[] = false
   end
 end
 
 function ui()
   [
   page(
-    root(model), class="container", title="Reverse text", [
+    vm(rt_model), class="container", title="Reverse text", [
       p([
         "Input "
         input("", @bind(:input), @on("keyup.enter", "process = true"))
@@ -36,8 +32,6 @@ function ui()
       ])
     ]
   )
-  # Uncomment for autoreload functionality in the browser
-  # GenieAutoReload.assets()
   ] |> html
 end
 

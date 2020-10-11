@@ -4,10 +4,6 @@ using StippleCharts
 
 using CSV, DataFrames
 
-# Uncomment for autoreload functionality in the browser
-# using GenieAutoReload
-# autoreload(pwd())
-
 # configuration
 const data_opts = DataTableOptions(columns = [Column("Good_Rating"), Column("Amount", align = :right),
                                               Column("Age", align = :right), Column("Duration", align = :right)])
@@ -98,7 +94,7 @@ end
 ### UI
 Stipple.register_components(Dashboard, StippleCharts.COMPONENTS)
 
-model = setmodel(data, Dashboard()) |> Stipple.init
+gc_model = setmodel(data, Dashboard()) |> Stipple.init
 
 function filterdata(model::Dashboard)
   model.credit_data_loading[] = true
@@ -110,7 +106,7 @@ end
 
 function ui(model)
   [
-  dashboard(root(model), title="German Credits", head_content = Genie.Assets.favicon_support(),
+  dashboard(vm(model), title="German Credits", head_content = Genie.Assets.favicon_support(),
   [
     heading("German Credits by Age")
 
@@ -190,19 +186,17 @@ function ui(model)
       ])
     ])
   ])
-  # Uncomment for autoreload functionality in the browser
-  # GenieAutoReload.assets()
   ]
 end
 
 # handlers
-on(model.range_data) do _
-  filterdata(model)
+on(gc_model.range_data) do _
+  filterdata(gc_model)
 end
 
 # routes
 route("/") do
-  ui(model) |> html
+  ui(gc_model) |> html
 end
 
 up(rand((8000:9000)), open_browser=true)
