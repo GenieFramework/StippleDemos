@@ -10,7 +10,7 @@ This repository includes a collection of Stipple demo application.
 
 3. `cd` to the demos folder. Ex: `julia> cd("<path_to_demos_folder_>")
 
-4. Go into package management mode and run `pkg> instantiate` (type `julia> ]instantiate`)
+4. Go into package management mode and run `pkg> activate .` and `pkg> instantiate` (type `julia> ]` to enter `pkg` mode)
 
 ## Instructions to run the demos
 
