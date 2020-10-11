@@ -1,4 +1,3 @@
-using Genie
 using Stipple
 using StippleUI
 using StippleCharts
@@ -7,8 +6,9 @@ using Clustering
 import RDatasets: dataset
 import DataFrames
 
-using GenieAutoReload
-autoreload(pwd())
+# Uncomment for autoreload functionality in the browser
+# using GenieAutoReload
+# autoreload(pwd())
 
 #= Data =#
 
@@ -137,7 +137,8 @@ function ui(model::Model)
     ])
     ]
   )
-  GenieAutoReload.assets()
+  # Uncomment for autoreload functionality in the browser
+  # GenieAutoReload.assets()
   ]
 end
 
@@ -146,3 +147,7 @@ end
 route("/") do
   ui(model) |> html
 end
+
+#= start server =#
+
+up(rand((8000:9000)), open_browser=true)

@@ -1,6 +1,8 @@
-using Genie, Stipple
-using GenieAutoReload
-autoreload(pwd())
+using Stipple
+
+# Uncomment for autoreload functionality in the browser
+# using GenieAutoReload
+# autoreload(pwd())
 
 Base.@kwdef mutable struct Name <: ReactiveModel
   name::R{String} = "Stipple!"
@@ -24,8 +26,11 @@ function ui()
         ])
       ]
     )
-    GenieAutoReload.assets()
+    # Uncomment for autoreload functionality in the browser
+    # GenieAutoReload.assets()
   ] |> html
 end
 
 route("/", ui)
+
+up(rand((8000:9000)), open_browser=true)

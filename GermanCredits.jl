@@ -1,12 +1,12 @@
-using Genie
 using Stipple
 using StippleUI
 using StippleCharts
 
 using CSV, DataFrames
 
-using GenieAutoReload
-autoreload(pwd())
+# Uncomment for autoreload functionality in the browser
+# using GenieAutoReload
+# autoreload(pwd())
 
 # configuration
 const data_opts = DataTableOptions(columns = [Column("Good_Rating"), Column("Amount", align = :right),
@@ -190,7 +190,8 @@ function ui(model)
       ])
     ])
   ])
-  GenieAutoReload.assets()
+  # Uncomment for autoreload functionality in the browser
+  # GenieAutoReload.assets()
   ]
 end
 
@@ -203,3 +204,5 @@ end
 route("/") do
   ui(model) |> html
 end
+
+up(rand((8000:9000)), open_browser=true)
