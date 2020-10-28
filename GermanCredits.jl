@@ -106,7 +106,8 @@ end
 
 function ui(model)
   [
-  dashboard(vm(model), title="German Credits", head_content = Genie.Assets.favicon_support(),
+  dashboard(vm(model), title="German Credits",
+            head_content = Genie.Assets.favicon_support(), partial = false,
   [
     heading("German Credits by Age")
 
