@@ -12,12 +12,10 @@ function ui()
     hs_models[channel]
   else
     hs_models[channel] = Stipple.init(Name(), channel = channel)
+  end
 
-    on(hs_models[channel].name) do _
-      @show "changed"
-    end
-
-    hs_models[channel]
+  on(hs_models[channel].name) do _
+    @show "changed"
   end
 
   [

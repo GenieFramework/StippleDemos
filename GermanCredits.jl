@@ -17,7 +17,7 @@ const bubble_plot_opts = PlotOptions(data_labels_enabled=false, fill_opacity=0.8
 const bar_plot_opts = PlotOptions(xaxis_tick_amount=10, xaxis_max=350, chart_type=:bar, plot_options_bar_data_labels_position=:top,
                                   plot_options_bar_horizontal=true, chart_height=200, colors=plot_colors, chart_animations_enabled=false,
                                   xaxis_categories = ["20-30", "30-40", "40-50", "50-60", "60-70", "70-80"], chart_toolbar_show=false,
-                                  chart_font_family="Lato, Helvetica, Arial, sans-serif")
+                                  chart_font_family="Lato, Helvetica, Arial, sans-serif", stroke_show = false)
 
 
 # model
