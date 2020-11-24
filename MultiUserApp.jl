@@ -5,9 +5,9 @@
 # whereas an instance in a different browser will keep its own values.
 
 using Stipple
-using StippleCharts, StippleCharts.Charts
-using StippleUI, StippleUI.Range, StippleUI.Heading, StippleUI.Dashboard, StippleUI.FormInput
-using Genie, Genie.Router, Genie.Renderer.Html
+using StippleCharts
+using StippleUI
+using Genie, Genie.Renderer.Html
 
 import Genie.Renderer.Json.JSONParser.JSONText
 
