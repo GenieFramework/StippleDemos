@@ -20,15 +20,14 @@ function ui()
                                      ])),
         ], title = "jsmethods")
 
-    js_methods(app) = """
-    showNotif () {
-    this.$q.notify({
-    message: 'Jim pinged you.',
-    color: 'purple'
-    })
-    }
-    """
-
+    js_methods(app) = script("""
+        showNotif () {
+        this.$q.notify({
+        message: 'Jim pinged you.',
+        color: 'purple'
+        })
+        }
+        """)
     html(app)
 end
 
