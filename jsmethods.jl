@@ -11,6 +11,15 @@ function restart()
     on(println, model.x)
 end
 
+Stipple.js_methods(::JSmethods) = raw"""
+    showNotif () {
+    this.$q.notify({
+    message: 'Jim pinged you.',
+    color: 'purple'
+    })
+    }
+"""
+
 function ui()
     app = dashboard(vm(model),
         [
@@ -20,14 +29,6 @@ function ui()
                                      ])),
         ], title = "jsmethods")
 
-    js_methods(app) = script("""
-        showNotif () {
-        this.$q.notify({
-        message: 'Jim pinged you.',
-        color: 'purple'
-        })
-        }
-        """)
     html(app)
 end
 
@@ -35,4 +36,3 @@ route("/", ui)
 Genie.config.server_host = "127.0.0.1"
 restart()
 up(open_browser = true)
-
