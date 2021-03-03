@@ -5,8 +5,12 @@ using Genie.Renderer.Html
 using HTTP
 using FFMPEG_jll, FileIO
 
-const SZ = 640 # width and height of the images
-const FPS = 5 # frames per second
+
+const SX = 640
+const SY = 360
+const FPS = 5
+const FMT = Sys.iswindows()  ? "dshow" : "v4l2"
+const DEVICE = Sys.iswindows()  ? "video=\"Integrated Webcam\"" : "/dev/video0"
 const CAM_PROCESS = Ref(run(`echo`)) # a container for the process running ffmpeg
 
 function readpngdata(io) # taken from Per Rutquist (@Per) https://github.com/perrutquist/FFmpegPipe.jl/blob/cc2d73acfa8ce55e3e4e53b8264c94477fa0bce3/src/FFmpegPipe.jl#L74
@@ -44,7 +48,7 @@ end
 const IMG = Ref{Vector{UInt8}}() # a container for the last frame
 
 _start_camera() = ffmpeg() do exe
-    io = open(`$exe -hide_banner -loglevel error -f v4l2 -r $FPS -s $(SZ)x$SZ -i /dev/video0 -c:v png -vf "crop=in_h:in_h,scale=$(SZ)x$SZ" -f image2pipe -`)
+    io = open(`$exe -hide_banner -loglevel error -f $FMT -r $FPS -s $(SX)x$SY -i $DEVICE -c:v png -f image2pipe -`)
     @async while process_running(io) # update the last frame from the pipe
         IMG[] = readpngdata(io)
     end
@@ -92,7 +96,7 @@ function ui()
                               heading("WebCam"),
                               row(cell(class="st-module", [ # using <img/> instead of quasar's becuase of the `img id = "frame"` that is used by the JS above to update the `src` from the client side
                                                            """
-                                                           <img id="frame" src="frame" style="height: $(SZ)px; max-width: $(SZ)px" />
+                                                           <img id="frame" src="frame" style="height: $(SY)px; max-width: $(SX)px" />
                                                            """
                                                           ])),
                               row(cell(class="st-module", [
