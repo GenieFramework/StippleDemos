@@ -12,6 +12,7 @@ function restart()
 end
 
 function ui()
+
     app = dashboard(vm(model),
         [
          heading("jsmethods"),
@@ -20,16 +21,18 @@ function ui()
                                      ])),
         ], title = "jsmethods")
 
-    js_methods(app) = script("""
-        showNotif () {
-        this.$q.notify({
-        message: 'Jim pinged you.',
-        color: 'purple'
-        })
-        }
-        """)
+    js_methods(app) = """
+    showNotif () {
+    this.$q.notify({
+    message: 'Jim pinged you.',
+    color: 'purple'
+    })
+    }
+    """
+
     html(app)
 end
+
 
 route("/", ui)
 Genie.config.server_host = "127.0.0.1"
