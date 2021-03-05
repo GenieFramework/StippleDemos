@@ -1,4 +1,4 @@
-# Reuires a webcam to be connected to the computer running this
+# Requires a webcam to be connected to the computer running this
 
 using Stipple, StippleUI
 using Genie.Renderer.Html
@@ -8,10 +8,37 @@ using FFMPEG_jll, FileIO
 
 const SX = 640
 const SY = 360
-const FPS = 5
-const FMT = Sys.iswindows()  ? "dshow" : "v4l2"
-const DEVICE = Sys.iswindows()  ? "video=\"Integrated Webcam\"" : "/dev/video0"
-const CAM_PROCESS = Ref(run(`echo`)) # a container for the process running ffmpeg
+const FPS = 5 # some cameras only support fix values, e.g. 30
+const FPS_CLIENT = 5
+const FMT = Sys.iswindows() ? "dshow" : "v4l2"
+const DEVICE = Sys.iswindows() ? "video=\"Integrated Webcam\"" : "/dev/video0"
+const CAM_PROCESS = Ref(run(Sys.iswindows() ? `cmd /C` : `echo`)) # a container for the process running ffmpeg
+
+# capture output, std_out, std_err and error information in case of failure
+macro capture(expr)
+    quote
+        original_stdout = stdout
+        original_stderr = stderr
+        (so_rd, so_wr) = redirect_stdout();
+        (se_rd, se_wr) = redirect_stderr();
+
+        out = try
+            eval($(esc(expr)))
+        catch ex
+            ex
+        end
+        
+        redirect_stdout(original_stdout)
+        redirect_stderr(original_stderr)
+        close(so_wr)
+        close(se_wr)
+
+        so = String(read(so_rd))
+        se = String(read(se_rd))
+
+        (out, so, se)
+    end
+end
 
 function readpngdata(io) # taken from Per Rutquist (@Per) https://github.com/perrutquist/FFmpegPipe.jl/blob/cc2d73acfa8ce55e3e4e53b8264c94477fa0bce3/src/FFmpegPipe.jl#L74
     blk = 65536;
@@ -47,8 +74,28 @@ end
 
 const IMG = Ref{Vector{UInt8}}() # a container for the last frame
 
+import FFMPEG_jll.ffmpeg
+ffmpeg(f, cmd::Cmd; kwargs...) = ffmpeg(f ∘ (x->`$x $cmd`); kwargs...)
+ffmpeg(cmd::Cmd; kwargs...) = ffmpeg(String ∘ read, cmd; kwargs...)
+
+function _get_camera()
+    # strangely ffmpeg outputs to std_err and exits with exit code 1
+    # so we have to do some acrobatics to capture its output
+    (_, _, out) = @capture ffmpeg(`-list_devices true -f dshow -i dummy`)
+    
+    # exctract the name of the first video device
+    m = match(r"""DirectShow video devices.+?"([^"]+)"""s, out)
+    isnothing(m) ? "" : m.captures[1]
+end
+
 _start_camera() = ffmpeg() do exe
-    io = open(`$exe -hide_banner -loglevel error -f $FMT -r $FPS -s $(SX)x$SY -i $DEVICE -c:v png -f image2pipe -`)
+    device = if Sys.iswindows()
+        cam = _get_camera()
+        cam == "" ? `no_device_found` : `video=$cam`
+    else
+        DEVICE
+    end
+    io = open(`$exe -hide_banner -loglevel error -f $FMT -r $FPS -s $(SX)x$SY -i $device -c:v png -f image2pipe -`)
     @async while process_running(io) # update the last frame from the pipe
         IMG[] = readpngdata(io)
     end
@@ -70,39 +117,36 @@ Base.@kwdef mutable struct WebCam <: ReactiveModel
 end
 
 function restart()
+    global model
+    model = Stipple.init(WebCam(), debounce=1)
 
     start_camera()
-
-    global model
-
-    model = Stipple.init(WebCam(), debounce=1)
 
     on(model.cameraon) do ison
         ison ? start_camera() : killcam()
     end
-
 end
 
 function ui()
     m = dashboard(vm(model), [
-                              script( # this should probably move to js_methods()
-                                     """
-                                     setInterval(function() {
-                                     var img = document.getElementById("frame");
-                                     img.src = "frame/" + new Date().getTime();
-                                     }, $(1000 ÷ FPS));
-                                     """
-                                    ),        
-                              heading("WebCam"),
-                              row(cell(class="st-module", [ # using <img/> instead of quasar's becuase of the `img id = "frame"` that is used by the JS above to update the `src` from the client side
-                                                           """
-                                                           <img id="frame" src="frame" style="height: $(SY)px; max-width: $(SX)px" />
-                                                           """
-                                                          ])),
-                              row(cell(class="st-module", [
-                                                           p(toggle("Camera on", fieldname = :cameraon)),
-                                                          ]))
-                             ], title = "WebCam")
+        script( # this should probably move to js_methods()
+            """
+            setInterval(function() {
+            var img = document.getElementById("frame");
+            img.src = "frame/" + new Date().getTime();
+            }, $(1000 ÷ FPS_CLIENT));
+            """
+        ),        
+        heading("WebCam"),
+        row(cell(class="st-module", [ # using <img/> instead of quasar's becuase of the `img id = "frame"` that is used by the JS above to update the `src` from the client side
+            """
+            <img id="frame" src="frame" style="height: $(SY)px; max-width: $(SX)px" />
+            """
+        ])),
+        row(cell(class="st-module", [
+            p(toggle("Camera on", fieldname = :cameraon)),
+        ]))
+    ], title = "WebCam")
 
     return html(m)
 end
@@ -119,6 +163,3 @@ Genie.config.server_host = "127.0.0.1"
 restart()
 
 up(open_browser = true)
-
-
-
