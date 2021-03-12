@@ -1,18 +1,18 @@
 # Requires a webcam to be connected to the computer running this
 
 using Stipple, StippleUI
-using Genie.Renderer.Html
 using HTTP
 using FFMPEG_jll, FileIO
 
 
 const SX = 640
 const SY = 360
-const FPS = 5 # some cameras only support fix values, e.g. 30
+const FPS = 30 # some cameras only support fix values, e.g. 30
 const FPS_CLIENT = 5
 const FMT = Sys.iswindows() ? "dshow" : "v4l2"
 const DEVICE = Sys.iswindows() ? "video=\"Integrated Webcam\"" : "/dev/video0"
 const CAM_PROCESS = Ref(run(Sys.iswindows() ? `cmd /C` : `echo`)) # a container for the process running ffmpeg
+const IMGPATH = "img/demo.png"
 
 # capture output, std_out, std_err and error information in case of failure
 macro capture(expr)
@@ -114,6 +114,7 @@ end
 
 Base.@kwdef mutable struct WebCam <: ReactiveModel
     cameraon::R{Bool} = true
+    imageurl::R{String} = IMGPATH
 end
 
 function restart()
@@ -127,21 +128,26 @@ function restart()
     end
 end
 
+
+Stipple.js_methods(model::WebCam) = """"""
+
+Stipple.js_watch(model::WebCam) = """
+    cameraon: function (newval, oldval) { 
+        if (this.camera == undefined) { this.camera = 0 };
+        if (this.camera) { clearInterval(this.camera) };
+        if (newval) {
+            this.camera = setInterval(function() {
+                WebCam.imageurl = "frame/" + new Date().getTime();
+            }, 1000/$FPS_CLIENT);
+        }
+    }
+"""
+
 function ui()
-    m = dashboard(vm(model), [
-        script( # this should probably move to js_methods()
-            """
-            setInterval(function() {
-            var img = document.getElementById("frame");
-            img.src = "frame/" + new Date().getTime();
-            }, $(1000 ÷ FPS_CLIENT));
-            """
-        ),        
+    m = dashboard(vm(model), [      
         heading("WebCam"),
         row(cell(class="st-module", [ # using <img/> instead of quasar's becuase of the `img id = "frame"` that is used by the JS above to update the `src` from the client side
-            """
-            <img id="frame" src="frame" style="height: $(SY)px; max-width: $(SX)px" />
-            """
+            quasar(:img, "", src=:imageurl, :basic, style="height: 140px; max-width: 150px")
         ])),
         row(cell(class="st-module", [
             p(toggle("Camera on", fieldname = :cameraon)),
