@@ -12,7 +12,7 @@ const FPS_CLIENT = 5
 const FMT = Sys.iswindows() ? "dshow" : "v4l2"
 const DEVICE = Sys.iswindows() ? "video=\"Integrated Webcam\"" : "/dev/video0"
 const CAM_PROCESS = Ref(run(Sys.iswindows() ? `cmd /C` : `echo`)) # a container for the process running ffmpeg
-const IMGPATH = "img/demo.png"
+const IMG = Ref{Vector{UInt8}}() # a container for the last frame
 
 # capture output, std_out, std_err and error information in case of failure
 macro capture(expr)
@@ -72,8 +72,6 @@ function readpngdata(io) # taken from Per Rutquist (@Per) https://github.com/per
     return a
 end
 
-const IMG = Ref{Vector{UInt8}}() # a container for the last frame
-
 import FFMPEG_jll.ffmpeg
 ffmpeg(f, cmd::Cmd; kwargs...) = ffmpeg(f ∘ (x->`$x $cmd`); kwargs...)
 ffmpeg(cmd::Cmd; kwargs...) = ffmpeg(String ∘ read, cmd; kwargs...)
@@ -112,9 +110,10 @@ function start_camera() # restart camera
     CAM_PROCESS[] = _start_camera()
 end
 
-Base.@kwdef mutable struct WebCam <: ReactiveModel
+Stipple.@kwdef mutable struct WebCam <: ReactiveModel
     cameraon::R{Bool} = true
-    imageurl::R{String} = IMGPATH
+    imageurl::String = ""
+    cameratimer::Int = 0
 end
 
 function restart()
@@ -129,17 +128,26 @@ function restart()
 end
 
 
-Stipple.js_methods(model::WebCam) = """"""
+Stipple.js_methods(model::WebCam) = """
+    updateimage: function () { 
+        this.imageurl = "frame/" + new Date().getTime();
+    },
+    startcamera: function () { 
+        this.cameratimer = setInterval(this.updateimage, 1000/$FPS_CLIENT);
+    },
+    stopcamera: function () { 
+        clearInterval(this.cameratimer);
+    }
+"""
+
+Stipple.js_created(model::WebCam) = """
+    if (this.cameraon) { this.startcamera() }
+"""
 
 Stipple.js_watch(model::WebCam) = """
     cameraon: function (newval, oldval) { 
-        if (this.camera == undefined) { this.camera = 0 };
-        if (this.camera) { clearInterval(this.camera) };
-        if (newval) {
-            this.camera = setInterval(function() {
-                WebCam.imageurl = "frame/" + new Date().getTime();
-            }, 1000/$FPS_CLIENT);
-        }
+        this.stopcamera()
+        if (newval) { this.startcamera() }
     }
 """
 
