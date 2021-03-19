@@ -21,9 +21,10 @@ const bar_plot_opts = PlotOptions(xaxis_tick_amount=10, xaxis_max=350, chart_typ
 
 
 # model
+cd(@__DIR__)
 data = CSV.File("data/german_credit.csv") |> DataFrame!
 
-Base.@kwdef mutable struct Dashboard <: ReactiveModel
+Base.@kwdef mutable struct Dashboard1 <: ReactiveModel
   credit_data::R{DataTable} = DataTable()
   credit_data_pagination::DataTablePagination = DataTablePagination(rows_per_page=100)
   credit_data_loading::R{Bool} = false
@@ -49,10 +50,10 @@ function creditdata(data::DataFrame, model::M) where {M<:Stipple.ReactiveModel}
 end
 
 function bignumbers(data::DataFrame, model::M) where {M<:ReactiveModel}
-  model.big_numbers_count_good_credits[] = data[(data[:Good_Rating] .== true), [:Good_Rating]] |> nrow
-  model.big_numbers_count_bad_credits[] = data[(data[:Good_Rating] .== false), [:Good_Rating]] |> nrow
-  model.big_numbers_amount_good_credits[] = data[(data[:Good_Rating] .== true), [:Amount]] |> Array |> sum
-  model.big_numbers_amount_bad_credits[] = data[(data[:Good_Rating] .== false), [:Amount]] |> Array |> sum
+  model.big_numbers_count_good_credits[] = data[data.Good_Rating .== true, [:Good_Rating]] |> nrow
+  model.big_numbers_count_bad_credits[] = data[data.Good_Rating .== false, [:Good_Rating]] |> nrow
+  model.big_numbers_amount_good_credits[] = data[data.Good_Rating .== true, [:Amount]] |> Array |> sum
+  model.big_numbers_amount_bad_credits[] = data[data.Good_Rating .== false, [:Amount]] |> Array |> sum
 end
 
 function barstats(data::DataFrame, model::M) where {M<:Stipple.ReactiveModel}
@@ -60,9 +61,9 @@ function barstats(data::DataFrame, model::M) where {M<:Stipple.ReactiveModel}
 
   for x in 20:10:70
     push!(age_stats[:good_credit],
-          data[(data[:Age] .∈ [x:x+10]) .& (data[:Good_Rating] .== true), [:Good_Rating]] |> nrow)
+          data[(data.Age .∈ [x:x+10]) .& (data.Good_Rating .== true), [:Good_Rating]] |> nrow)
     push!(age_stats[:bad_credit],
-          data[(data[:Age] .∈ [x:x+10]) .& (data[:Good_Rating] .== false), [:Good_Rating]] |> nrow)
+          data[(data.Age .∈ [x:x+10]) .& (data.Good_Rating .== false), [:Good_Rating]] |> nrow)
   end
 
   model.bar_plot_data[] = [PlotSeries("Good credit", PlotData(age_stats[:good_credit])),
@@ -73,8 +74,8 @@ function bubblestats(data::DataFrame, model::M) where {M<:ReactiveModel}
   selected_columns = [:Age, :Amount, :Duration]
   credit_stats = Dict{Symbol,DataFrame}()
 
-  credit_stats[:good_credit] = data[data[:Good_Rating] .== true, selected_columns]
-  credit_stats[:bad_credit] = data[data[:Good_Rating] .== false, selected_columns]
+  credit_stats[:good_credit] = data[data.Good_Rating .== true, selected_columns]
+  credit_stats[:bad_credit] = data[data.Good_Rating .== false, selected_columns]
 
   model.bubble_plot_data[] = [PlotSeries("Good credit", PlotData(credit_stats[:good_credit])),
                               PlotSeries("Bad credit", PlotData(credit_stats[:bad_credit]))]
@@ -92,11 +93,11 @@ end
 
 
 ### UI
-Stipple.register_components(Dashboard, StippleCharts.COMPONENTS)
+Stipple.register_components(Dashboard1, StippleCharts.COMPONENTS)
 
-gc_model = setmodel(data, Dashboard()) |> Stipple.init
+gc_model = setmodel(data, Dashboard1()) |> Stipple.init
 
-function filterdata(model::Dashboard)
+function filterdata(model::Dashboard1)
   model.credit_data_loading[] = true
   model = setmodel(data[(model.range_data[].range.start .<= data[:Age] .<= model.range_data[].range.stop), :], model)
   model.credit_data_loading[] = false
