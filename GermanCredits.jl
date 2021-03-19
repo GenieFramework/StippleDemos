@@ -2,7 +2,7 @@ using Stipple
 using StippleUI
 using StippleCharts
 
-using CSV, DataFrames
+using CSV, DataFrames, Dates
 
 # configuration
 const data_opts = DataTableOptions(columns = [Column("Good_Rating"), Column("Amount", align = :right),
@@ -183,7 +183,7 @@ function ui(model)
 
     footer(class="st-footer q-pa-md", [
       cell([
-        span("Stipple &copy; 2020")
+        span("Stipple &copy; $(year(now()))")
       ])
     ])
   ])
