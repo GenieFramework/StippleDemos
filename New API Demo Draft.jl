@@ -7,10 +7,13 @@ Stipple.@kwdef mutable struct Example <: ReactiveModel
   private::Private{String} = "Don't show"
   readonly::R{String} = "readonly", :readonly
   options::R{OptDict} = opts(f = js"()=>{}"), :jsfunction
-  js::R{JSONText} = js"()=>{}", :readonly
+  js::R{JSONText} = js"()=>{}", :jsfunction
 end
 
 model = Stipple.init(Example())
+Stipple.js_watch(Example) = """
+  js: function(val) { if (typeof(val)=="function") { val() } }
+"""
 
 function ui()
   [
@@ -34,3 +37,9 @@ end
 route("/", ui)
 
 up(open_browser=true)
+
+model.js[] = js"""() => console.log("Hello")"""
+model.js[] = js"""() => console.log("World")"""
+
+model.options[] = opts(f = js"""() => console.log("Let's Stipple!")""")
+model.js[] = model.options[][:f]
