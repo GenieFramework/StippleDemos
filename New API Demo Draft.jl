@@ -1,12 +1,16 @@
 using Revise
 using Stipple, StippleUI
 import Stipple: opts, OptDict
+
 Stipple.@kwdef mutable struct Example <: ReactiveModel
   name::R{String} = "Stipple!"
   firstname::String = "You"
   name_::String = "readonly"
   name__::String = "private"
-  private::Private{String} = "Don't show"
+  noauto::R{String} = "Don't autoupdate", NO_WATCHER
+  noauto_backend::R{String} = "Don't autoupdate", NO_BACKEND_WATCHER
+  noauto_frontend::R{String} = "Don't autoupdate", NO_FRONTEND_WATCHER
+  private::R{String} = "private", :private
   readonly::R{String} = "readonly", :readonly
   options::R{OptDict} = opts(f = js"()=>{}"), :jsfunction
   js::R{JSONText} = js"()=>{}", :jsfunction
