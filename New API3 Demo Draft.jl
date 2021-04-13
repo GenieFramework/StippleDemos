@@ -1,5 +1,5 @@
 using Revise
-using Stipple, StippleUI
+using Stipple, StippleUI, OffsetArrays
 import Stipple: opts, OptDict
 
 Stipple.@kwdef mutable struct Example <: ReactiveModel
@@ -16,6 +16,7 @@ Stipple.@kwdef mutable struct Example <: ReactiveModel
   js::R{JSONText} = js"()=>{}", JSFUNCTION
   header::R{Bool} = true
   darkmode::R{Bool} = true
+  array::R{OffsetArray} = OffsetArray([true, false, false], -1)
 end
 
 css() = style("""
@@ -31,12 +32,12 @@ css() = style("""
 """)
 
 model = Stipple.init(Example())
-Stipple.js_watch(model) = raw"""
+Stipple.js_watch(m::Example) = raw"""
   js: function(val) { if (typeof(val)=="function") { val() } },
   darkmode: function(val) { this.$q.dark.set(val) }
 """
 
-Stipple.js_created(model) = raw"""
+Stipple.js_created(m::Example) = raw"""
   this.$q.dark.set(this.darkmode)
 """
 
@@ -51,7 +52,11 @@ function ui()
         row(cell(class="st-module", [
           p(toggle("Camera on", fieldname = :header)),
           p(toggle("Darkmode", :darkmode)),            
+          p(toggle("array[0]", R"array[0]")),            
+          p(toggle("array[1]", R"array[1]")),            
+          p(toggle("array[2]", R"array[2]")),            
         ]))
+        p(h1("Array: {{ array }}"))
         p([
           h1("What is your name? ")
           textfield("", :name, placeholder="type your name", label="Name", outlined="", filled="")
@@ -71,3 +76,5 @@ model.js[] = js"""() => console.log("World")"""
 
 model.options[] = opts(f = js"""() => console.log("Let's Stipple!")""")
 model.js[] = model.options[][:f]
+
+model.array[1] = true
