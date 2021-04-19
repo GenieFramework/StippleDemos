@@ -3,8 +3,8 @@ using StippleCharts
 Base.@kwdef mutable struct HelloPie <: ReactiveModel
   plot_options::R{PlotOptions} = PlotOptions(chart_type=:pie, chart_width=380, chart_animations_enabled=true,
                                             stroke_show = false, labels=["Slice A", "Slice B"])
-  piechart::R{Vector{Int}} = [44, 55]
-  values::R{String} = join(piechart, ",")
+  piechart_::R{Vector} = Any[44, 55]
+  values::R{String} = join(piechart_, ",")
 end
 
 Stipple.register_components(HelloPie, StippleCharts.COMPONENTS)
@@ -12,12 +12,12 @@ Stipple.register_components(HelloPie, StippleCharts.COMPONENTS)
 hs_model = Stipple.init(HelloPie())
 
 on(hs_model.values) do _
-  hs_model.piechart[] = [tryparse(Int, strip(x)) for x in split(hs_model.values[], ',')]
+  hs_model.piechart_[] = Any[tryparse(Int, strip(x)) for x in split(hs_model.values[], ',')]
 
   po = hs_model.plot_options[]
-  po.labels = ["Slice $x" for x in ( collect('A':'Z')[1:length(hs_model.piechart[])] )]
+  po.labels = ["Slice $x" for x in ( collect('A':'Z')[1:length(hs_model.piechart_[])] )]
 
-  while length(hs_model.piechart[]) > length(po.colors)
+  while length(hs_model.piechart_[]) > length(po.colors)
     push!(po.colors, string('#', random_color(), random_color(), random_color()))
   end
 
@@ -48,7 +48,7 @@ function ui()
         )
         row(
           cell(class="st-module", [
-            plot(@data(:piechart), options! = "plot_options")
+            plot(@data(:piechart_), options! = "plot_options")
           ])
         )
       ]
