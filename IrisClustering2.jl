@@ -9,6 +9,7 @@ import DataFrames
 #= Data =#
 
 data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int, 150))
+
 Base.@kwdef mutable struct IrisModel <: ReactiveModel
   iris_data::R{DataTable} = DataTable(data)
   credit_data_pagination::DataTablePagination =
@@ -32,43 +33,6 @@ end
 
 Stipple.register_components(IrisModel, StippleCharts.COMPONENTS)
 const ic_model = Stipple.init(IrisModel())
-
-#= Event handlers =#
-
-onany(ic_model.xfeature, ic_model.yfeature, ic_model.no_of_clusters, ic_model.no_of_iterations) do (_...)
-  ic_model.iris_plot_data[] = plot_data(:Species)
-  compute_clusters!()
-end
-
-#= Computation =#
-
-function plot_data(cluster_column::Symbol)
-  result = Vector{PlotSeries}()
-  isempty(ic_model.xfeature[]) || isempty(ic_model.yfeature[]) && return result
-
-  dimensions = Dict()
-  for s in Array(data[:, cluster_column]) |> unique!
-    dimensions[s] = []
-
-    for r in eachrow(data[data[cluster_column] .== s, :])
-      push!(dimensions[s], [r[Symbol(ic_model.xfeature[])], r[Symbol(ic_model.yfeature[])]])
-    end
-
-    push!(result, PlotSeries("$s", PlotData(dimensions[s])))
-  end
-
-  result
-end
-
-function compute_clusters!()
-  features = collect(Matrix(data[:, [Symbol(c) for c in ic_model.features[]]])')
-  result = kmeans(features, ic_model.no_of_clusters[]; maxiter=ic_model.no_of_iterations[])
-  data[:Cluster] = assignments(result)
-  ic_model.iris_data[] = DataTable(data)
-  ic_model.cluster_plot_data[] = plot_data(:Cluster)
-
-  nothing
-end
 
 #= UI =#
 
