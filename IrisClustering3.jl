@@ -9,6 +9,7 @@ import DataFrames
 #= Data =#
 
 data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int, 150))
+
 Base.@kwdef mutable struct IrisModel <: ReactiveModel
   iris_data::R{DataTable} = DataTable(data)
   credit_data_pagination::DataTablePagination =

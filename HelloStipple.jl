@@ -1,7 +1,8 @@
 using Stipple
+using StippleCharts
 
 Base.@kwdef mutable struct Name <: ReactiveModel
-  name::R{String} = "Stipple!"
+  name__::R{String} = "Stipple!"
 end
 
 hs_model = Stipple.init(Name())
@@ -9,17 +10,21 @@ hs_model = Stipple.init(Name())
 function ui()
   [
     page(
-      vm(hs_model), class="container", title="Hello Stipple",
+      vm(hs_model), class="container", title="Hello Stipple", partial=true,
       [
-        h1([
-          "Hello, "
-          span("", @text(:name))
-        ])
+        row(
+          cell([
+            h1([
+              "Hello, "
+              span("", @text(:name__))
+            ])
 
-        p([
-          "What is your name? "
-          input("", placeholder="Type your name", @bind(:name))
-        ])
+            p([
+              "What is your name? "
+              input("", placeholder="Type your name", @bind(:name__))
+            ])
+          ])
+        )
       ]
     )
   ] |> html

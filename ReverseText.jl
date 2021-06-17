@@ -1,4 +1,4 @@
-using Stipple
+using Stipple, StippleUI
 
 Base.@kwdef mutable struct RTModel <: ReactiveModel
   process::R{Bool} = false
