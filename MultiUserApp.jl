@@ -9,7 +9,7 @@ using StippleCharts
 using StippleUI
 using Genie, Genie.Renderer.Html
 
-import Genie.Renderer.Json.JSONParser.JSONText
+import Stipple.JSONParser.JSONText
 
 # extra css for correct padding of st-br blocks ('st-pv' is not used here)
 const CSS = style("""
@@ -124,7 +124,7 @@ function ui(user)
         row(cell(class="st-module", plot(:plot_data; options=:plot_options))),
         # make a nice bottom section
         footer(class="st-footer q-pa-md","Have some nicer footer here ...")
-        # alternatively do 
+        # alternatively do
         # row("&nbsp;")
     ], title = "Stipple x-y ApexChart", channel = channel)
     return CSS * db |> html

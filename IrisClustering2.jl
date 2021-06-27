@@ -54,7 +54,7 @@ function ui(model::IrisModel)
           h6("Number of iterations")
           slider( 10:10:200,
                   @data(:no_of_iterations);
-                  label=true)
+                  label=true, color="red", label__color="green")
         ])
 
         cell(class="st-module", [

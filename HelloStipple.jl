@@ -2,7 +2,7 @@ using Stipple
 using StippleCharts
 
 Base.@kwdef mutable struct Name <: ReactiveModel
-  name__::R{String} = "Stipple!"
+  name::R{String} = "Stipple!"
 end
 
 hs_model = Stipple.init(Name())
@@ -16,12 +16,12 @@ function ui()
           cell([
             h1([
               "Hello, "
-              span("", @text(:name__))
+              span("", @text(:name))
             ])
 
             p([
               "What is your name? "
-              input("", placeholder="Type your name", @bind(:name__))
+              input("", placeholder="Type your name", @bind(:name))
             ])
           ])
         )

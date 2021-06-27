@@ -9,7 +9,6 @@ end
 
 #= Stipple setup =#
 
-Stipple.register_components(IrisModel, StippleCharts.COMPONENTS)
 const ic_model = Stipple.init(IrisModel())
 
 #= UI =#
