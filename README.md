@@ -1,6 +1,6 @@
 # Demos for Stipple
 
-This repository includes a collection of Stipple demo application.
+This repository includes a collection of Stipple demo application. They are for older Stipple version 0.6 (see Project.toml file), and will break for version 0.9, but not if used as explained below.
 
 ## Set up
 
