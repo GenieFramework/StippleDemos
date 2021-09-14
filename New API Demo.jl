@@ -9,7 +9,7 @@ Stipple.@kwdef mutable struct Example <: ReactiveModel
   a::R{Array} = [3, 2, 1]
 end
 
-model = Stipple.init(Example())
+model = Stipple.init(Example(), debounce = 0)
 
 function ui()
   page(vm(model), class="container", title="Hello Stipple", [
@@ -66,9 +66,13 @@ model.a[2] = 11
 # non-notifying syntax for full arrays
 model.a[!] = 1:2:9
 
+# manual notification of change
+notify(model.a)
+
 # non-notifying syntax is working for all Reactive types
 model.s[!] = "Hello Stipple!"
 
+notify(model.s)
 
 # on the js side call: `Example.a.__ob__.dep.notify()`
 
@@ -99,13 +103,13 @@ function ui()
 
     p([
       "What is your amount? ",
-      input("", placeholder="Type your name", @bind(R"a[1]", "number"))
+      input("", placeholder="Type your name", @bind("a[1]", "number"))
     ])
   ]) |> html
 end
 
 
-on(model.a) do a
+updateinfo = on(model.a) do a
   @info "a was updated!"
   @show a
 end
@@ -113,6 +117,8 @@ end
 on(model.a) do x
   model.s[] = "a was updated to `$x`"
 end
+
+off(updateinfo)
 
 function ui()
   page(vm(model), class="container", title="Hello Stipple", [
@@ -144,8 +150,10 @@ function ui()
 
     p([
       "What is your amount? ",
-      input("", placeholder="Type your name", @bind(R"a[n]", "number"))
+      input("", placeholder="Type your name", @bind("a[n]", "number"))
     ])
+
+    slider(0:100, Symbol("a[1]"))
   ]) |> html
 end
 
@@ -157,10 +165,10 @@ Stipple.@kwdef mutable struct Example <: ReactiveModel
   i::R{Int} = 1, PRIVATE
 
   d::R{Dict{Symbol, Any}} = opts(hello = "World"), JSFUNCTION
-  f::R{JSONText} = js"""Function(""," return this.n ")""", JSFUNCTION
+  f::R{JSONText} = JSONText("function() { return Example.n + 1 }"), JSFUNCTION
 end
 
-model = Stipple.init(Example())
+model = Stipple.init(Example(), debounce = 0)
 
 
 ## passing functions
@@ -181,11 +189,12 @@ Stipple.@kwdef mutable struct Example <: ReactiveModel
   s__::String = "You don't see me!"
 
   a::R{Array} = [3, 2, 1]   # PUBLIC
+  n::R{Int} = -1            # PUBLIC
   n_::R{Int} = -1           # READONLY
-  i__::R{Int} = 0,          # PRIVATE
+  i__::R{Int} = 0           # PRIVATE
 
   d::R{Dict{Symbol, Any}} = opts(hello = "World"), JSFUNCTION
-  f::R{JSONText} = js"""Function(""," return this.n ")""", JSFUNCTION
+  f::R{JSONText} = js"""Function(""," return this.n_ ")""", JSFUNCTION
 end
 
 model = Stipple.init(Example())
