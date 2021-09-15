@@ -50,7 +50,7 @@ function plot_data(cluster_column::Symbol)
   for s in Array(data[:, cluster_column]) |> unique!
     dimensions[s] = []
 
-    for r in eachrow(data[data[cluster_column] .== s, :])
+    for r in eachrow(data[data[!, cluster_column] .== s, :])
       push!(dimensions[s], [r[Symbol(ic_model.xfeature[])], r[Symbol(ic_model.yfeature[])]])
     end
 
@@ -63,7 +63,7 @@ end
 function compute_clusters!()
   features = collect(Matrix(data[:, [Symbol(c) for c in ic_model.features[]]])')
   result = kmeans(features, ic_model.no_of_clusters[]; maxiter=ic_model.no_of_iterations[])
-  data[:Cluster] = assignments(result)
+  data[!, :Cluster] = assignments(result)
   ic_model.iris_data[] = DataTable(data)
   ic_model.cluster_plot_data[] = plot_data(:Cluster)
 
@@ -74,7 +74,7 @@ end
 
 function ui(model::IrisModel)
   [
-  dashboard(
+  page(
     vm(model), class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
     [
       heading("Iris data k-means clustering")

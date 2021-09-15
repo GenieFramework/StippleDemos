@@ -22,7 +22,7 @@ const bar_plot_opts = PlotOptions(xaxis_tick_amount=10, xaxis_max=350, chart_typ
 
 # model
 cd(@__DIR__)
-data = CSV.File("data/german_credit.csv") |> DataFrame!
+data = CSV.File("data/german_credit.csv") |> DataFrame
 
 Base.@kwdef mutable struct Dashboard1 <: ReactiveModel
   credit_data::R{DataTable} = DataTable()
@@ -99,7 +99,7 @@ gc_model = setmodel(data, Dashboard1()) |> Stipple.init
 
 function filterdata(model::Dashboard1)
   model.credit_data_loading[] = true
-  model = setmodel(data[(model.range_data[].range.start .<= data[:Age] .<= model.range_data[].range.stop), :], model)
+  model = setmodel(data[(model.range_data[].range.start .<= data[!, :Age] .<= model.range_data[].range.stop), :], model)
   model.credit_data_loading[] = false
 
   nothing
