@@ -9,13 +9,15 @@ import DataFrames
 #= Data =#
 
 data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int, 150))
+
 Base.@kwdef mutable struct IrisModel <: ReactiveModel
   iris_data::R{DataTable} = DataTable(data)
   credit_data_pagination::DataTablePagination =
     DataTablePagination(rows_per_page=50)
 
   plot_options::PlotOptions =
-    PlotOptions(chart_type=:scatter, xaxis_type=:numeric)
+    PlotOptions(chart_type=:scatter, xaxis_type=:numeric,
+                colors=["#13c2ff", "#e43dff", "#2401e2"], grid_row_colors=["#F8F8F8", "transparent"])
   iris_plot_data::R{Vector{PlotSeries}} = PlotSeries[]
   cluster_plot_data::R{Vector{PlotSeries}} = PlotSeries[]
 
@@ -74,6 +76,25 @@ end
 
 function ui(model::IrisModel)
   [
+  style(
+    """
+    tr:nth-child(even) {
+      background: #F8F8F8 !important;
+    }
+
+    .st-module {
+      background-color: #FFF;
+      border-radius: 2px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .stipple-core .st-module > h5,
+    .stipple-core .st-module > h6 {
+      border-bottom: 0px !important;
+    }
+    """
+  )
+
   page(
     vm(model), class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
     [
@@ -95,12 +116,12 @@ function ui(model::IrisModel)
 
         cell(class="st-module", [
           h6("X feature")
-          select(:xfeature; options=:features)
+          Stipple.select(:xfeature; options=:features)
         ])
 
         cell(class="st-module", [
           h6("Y feature")
-          select(:yfeature; options=:features)
+          Stipple.select(:yfeature; options=:features)
         ])
       ])
 
@@ -134,4 +155,4 @@ end
 
 #= start server =#
 
-up(rand((8000:9000)), open_browser=true)
+up(async = false, server = Stipple.bootstrap())
