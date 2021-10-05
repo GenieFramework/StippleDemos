@@ -8,8 +8,12 @@ import DataFrames
 
 #= Data =#
 
+# load Iris dataset from the RDatasets package and populate the resulting DataFrame
+# with an extra column for storing the clusters ids
 data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int, 150))
 
+# definition of the reactive model
+#
 Base.@kwdef mutable struct IrisModel <: ReactiveModel
   iris_data::R{DataTable} = DataTable(data)
   credit_data_pagination::DataTablePagination =
@@ -74,6 +78,12 @@ end
 
 #= UI =#
 
+"""
+
+    function ui(model::IrisModel)
+
+The ui function renders the user interface of the Iris Clustering data dashboard.
+"""
 function ui(model::IrisModel)
   [
   style(
