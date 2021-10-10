@@ -1,35 +1,31 @@
-# Demos for Stipple
-
-This repository includes a collection of Stipple demo application.
+# Demos for Stipple Ecosystem
+This repository includes a collection of Stipple demo application. Uses [Stipple](https://github.com/GenieFramework/Stipple.jl), [StippleUI](https://github.com/GenieFramework/StippleUI.jl), [StippleCharts](https://github.com/GenieFramework/StippleCharts.jl) and [Genie](https://github.com/GenieFramework/Genie.jl) from Stipple Ecosystem
 
 ## Set up
 
-1. Download or clone demos repo
+1. Download or clone *STIPPLEDEMOS* repo.
 
-2. Open a Julia REPL (Start Julia from Start menu, app launcher, terminal, Applications folder, etc)
+2. `cd <path_to_demos_folder_>` and follow the `README.md` instructions in respective **directories** 
 
-3. `cd` to the demos folder. Ex: `julia> cd("<path_to_demos_folder_>")
+ > NOTE: path_to_demos_folder_ could be IrisClustering | GermanCredits | BasicExamples | AdvancedExamples
 
-4. Go into package management mode and run `pkg> activate .` and `pkg> instantiate` (type `julia> ]` to enter `pkg` mode)
 
-## Run the demos
+## BasicExamples
 
-1. Open a Julia REPL (Start Julia from Start menu, app launcher, terminal, Applications folder, etc)
+ - Card Component
+ - Date Picker Compontent
+ - Form Component
+ - Pie Chart
+ - Text Example
+ - Using Javascript methods with Stipple Julia
+ - Reverse Input Text 
+ - Button Compontent and methods 
 
-2. `cd` to the demos folder. Ex: `julia> cd("<path_to_demos_folder_>")
 
-3. Activate the environment - press `]` to go into `pkg> ` mode and run
+## AdvancedExamples
+  - Using Custom CSS for syling
+  - Using WebCAM to capture frame
 
-  ```julia
-  pkg> activate .
-  ```
+## Iris Cluture Project
 
-  then exit `pkg> ` mode (via Ctrl+C or backspace until the cursor changes from `pkg> ` to `julia> `)
-
-4. Run:
-
-```julia
-julia> include("IrisClustering.jl") # swap "IrisClustering.jl" with any other demo
-```
-
-Upon starting the application, a browser window should automatically open with the demo dashboard.
+## German Credit Project
