@@ -10,23 +10,42 @@ import DataFrames
 
 # load Iris dataset from the RDatasets package and populate the resulting DataFrame
 # with an extra column for storing the clusters ids
+#=
+julia> df = DataFrame(a=1:3)
+3×1 DataFrame
+ Row │ a
+     │ Int64
+─────┼───────
+   1 │     1
+   2 │     2
+   3 │     3
+julia> insertcols!(df, 1, :b => 'a':'c')
+3×2 DataFrame
+ Row │ b     a
+     │ Char  Int64
+─────┼─────────────
+   1 │ a         1
+   2 │ b         2
+   3 │ c         3
+=#
 data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int, 150))
 
 # definition of the reactive model
-#
-Base.@kwdef mutable struct IrisModel <: ReactiveModel
-  iris_data::R{DataTable} = DataTable(data)
-  credit_data_pagination::DataTablePagination =
-    DataTablePagination(rows_per_page=50)
 
+Base.@kwdef mutable struct IrisModel <: ReactiveModel
+  iris_data::R{DataTable} = DataTable(data)    # iris_data has data -> dataframe defined at line 13
+  credit_data_pagination::DataTablePagination =
+    DataTablePagination(rows_per_page=50)              # DataTable, DataTablePagination are part of StippleUI which helps us set Data Table UI
+
+  # PlotOption is a Julia object defined in StippleCharts
   plot_options::PlotOptions =
     PlotOptions(chart_type=:scatter, xaxis_type=:numeric,
                 colors=["#13c2ff", "#e43dff", "#2401e2"], grid_row_colors=["#F8F8F8", "transparent"])
-  iris_plot_data::R{Vector{PlotSeries}} = PlotSeries[]
+  iris_plot_data::R{Vector{PlotSeries}} = PlotSeries[]   # PlotSeries is structure used to store data
   cluster_plot_data::R{Vector{PlotSeries}} = PlotSeries[]
 
   features::R{Vector{String}} =
-    ["SepalLength", "SepalWidth", "PetalLength", "PetalWidth"]
+    ["SepalLength", "SepalWidth", "PetalLength", "PetalWidth"]   #iris dataset have following columns: https://www.kaggle.com/lalitharajesh/iris-dataset-exploratory-data-analysis/data
   xfeature::R{String} = ""
   yfeature::R{String} = ""
 
@@ -37,12 +56,20 @@ end
 #= Stipple setup =#
 
 Stipple.register_components(IrisModel, StippleCharts.COMPONENTS)
+
+# Instantiating a Stipple's ReactiveModel
 const ic_model = Stipple.init(IrisModel())
 
 #= Event handlers =#
 
+# Observable from stipple ReactiveModel...Calls f on updates to any observable refs in args 
+#=
+onany(x, y) do xval, yval
+    println("At ", time()-tstart, ", we have x = ", xval, " and y = ", yval)
+end
+=#
 onany(ic_model.xfeature, ic_model.yfeature, ic_model.no_of_clusters, ic_model.no_of_iterations) do (_...)
-  ic_model.iris_plot_data[] = plot_data(:Species)
+  ic_model.iris_plot_data[] = plot_data(:Species) # plot_data function defined in line 78
   compute_clusters!()
 end
 
@@ -163,6 +190,4 @@ route("/") do
   ui(ic_model) |> html
 end
 
-#= start server =#
-
-up(async = false, server = Stipple.bootstrap())
+up(async = true, server = Stipple.bootstrap()) # you can set async = true to interact with application in repl
