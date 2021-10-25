@@ -1,0 +1,8 @@
+[deps]
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StipplePlotly = "ec984513-233d-481d-95b0-a3b58b97af2b"
+
+[compat]
+Stipple = "0.14.0, 0.14.1, 0.15"
+StipplePlotly = "~0.5.0"
