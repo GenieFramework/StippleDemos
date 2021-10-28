@@ -6,6 +6,10 @@ using Clustering
 import RDatasets: dataset
 import DataFrames
 
+Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
+                            host = "https://cdn.statically.io/gh/GenieFramework")
+WEB_TRANSPORT = Genie.WebChannels #Genie.WebThreads #
+
 #= Data =#
 
 # load Iris dataset from the RDatasets package and populate the resulting DataFrame
@@ -51,6 +55,8 @@ Base.@kwdef mutable struct IrisModel <: ReactiveModel
 
   no_of_clusters::R{Int} = 3
   no_of_iterations::R{Int} = 10
+
+  foo::R{String} = "bar"
 end
 
 #= Stipple setup =#
@@ -58,11 +64,11 @@ end
 Stipple.register_components(IrisModel, StippleCharts.COMPONENTS)
 
 # Instantiating a Stipple's ReactiveModel
-const ic_model = Stipple.init(IrisModel())
+const ic_model = Stipple.init(IrisModel(), transport = WEB_TRANSPORT)
 
 #= Event handlers =#
 
-# Observable from stipple ReactiveModel...Calls f on updates to any observable refs in args 
+# Observable from stipple ReactiveModel...Calls f on updates to any observable refs in args
 #=
 onany(x, y) do xval, yval
     println("At ", time()-tstart, ", we have x = ", xval, " and y = ", yval)
@@ -112,8 +118,10 @@ end
 The ui function renders the user interface of the Iris Clustering data dashboard.
 """
 function ui(model::IrisModel)
-  [
-  style(
+  page(
+    vm(model), class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
+
+    prepend = style(
     """
     tr:nth-child(even) {
       background: #F8F8F8 !important;
@@ -130,10 +138,8 @@ function ui(model::IrisModel)
       border-bottom: 0px !important;
     }
     """
-  )
+    ),
 
-  page(
-    vm(model), class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
     [
       heading("Iris data k-means clustering")
 
@@ -180,14 +186,14 @@ function ui(model::IrisModel)
           table(:iris_data; pagination=:credit_data_pagination, dense=true, flat=true, style="height: 350px;")
         ])
       ])
-    ])
-  ]
+    ]
+  )
 end
 
 #= routing =#
 
 route("/") do
-  ui(ic_model) |> html
+  html([ui(ic_model)]) |> html
 end
 
-up(async = true, server = Stipple.bootstrap()) # you can set async = true to interact with application in repl
+up(9000; async = true, server = Stipple.bootstrap()) # you can set async = true to interact with application in repl

@@ -1,11 +1,12 @@
 [deps]
+Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
 StippleCharts = "30ddb3f0-912f-4f34-9804-e4bb31290777"
 StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
-Stipple = "0.14.0, 0.14.1, 0.15"
+Stipple = "0.14.0, 0.14.1, 0.15, 0.16"
 StippleCharts = "0.12, 0.13"
-StippleUI = "0.8, 0.9"
+StippleUI = "0.8, 0.9, 0.10"
 julia = "1.3"

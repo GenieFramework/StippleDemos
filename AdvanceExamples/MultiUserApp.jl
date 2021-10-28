@@ -10,6 +10,9 @@ using StippleUI
 
 import Stipple.JSONParser.JSONText
 
+Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
+                            host = "https://cdn.statically.io/gh/GenieFramework")
+
 # extra css for correct padding of st-br blocks ('st-pv' is not used here)
 const CSS = style("""
     .st-ph {
@@ -130,11 +133,14 @@ function ui(user)
 end
 
 route("/") do
-  # identify user from the header
-  headers = Genie.Requests.getheaders()
-  user = headers["User-Agent"] |> split |> last
   # deliver a user-spcific ui
-  ui(user)
+  redirect("/session/$(rand(1:1_000_000))")
+end
+
+route("/session/:sid::Int") do
+  params(:sid) |> ui
 end
 
 Genie.config.server_host = "127.0.0.1"
+
+up(8500)
