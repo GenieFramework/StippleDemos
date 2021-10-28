@@ -79,4 +79,4 @@ function ui()
   ] |> html
 end
 
-route("/", ui)
+ui()
