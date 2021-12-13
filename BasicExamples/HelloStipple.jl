@@ -1,8 +1,11 @@
+cd(@__DIR__)
+using Pkg
+pkg"activate"
 using Stipple, StippleUI
 
 # Stipple's ReactiveModel with name field which is mapped to frontend input
 # i.e. julia can access name's data in backend
-Base.@kwdef mutable struct Name <: ReactiveModel
+Stipple.@kwdef mutable struct Name <: ReactiveModel
   name::R{String} = "Stipple!"
 end
 
@@ -32,3 +35,4 @@ function ui()
 end
 
 route("/", ui)
+up()
