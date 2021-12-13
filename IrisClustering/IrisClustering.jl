@@ -6,8 +6,8 @@ using Clustering
 import RDatasets: dataset
 import DataFrames
 
-Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
-                            host = "https://cdn.statically.io/gh/GenieFramework")
+# Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
+#                             host = "https://cdn.statically.io/gh/GenieFramework")
 WEB_TRANSPORT = Genie.WebChannels #Genie.WebThreads #
 
 #= Data =#
@@ -36,7 +36,7 @@ data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int
 
 # definition of the reactive model
 
-Base.@kwdef mutable struct IrisModel <: ReactiveModel
+@reactive mutable struct IrisModel <: ReactiveModel
   iris_data::R{DataTable} = DataTable(data)    # iris_data has data -> dataframe defined at line 13
   credit_data_pagination::DataTablePagination =
     DataTablePagination(rows_per_page=50)              # DataTable, DataTablePagination are part of StippleUI which helps us set Data Table UI
@@ -55,33 +55,15 @@ Base.@kwdef mutable struct IrisModel <: ReactiveModel
 
   no_of_clusters::R{Int} = 3
   no_of_iterations::R{Int} = 10
-
-  foo::R{String} = "bar"
 end
 
 #= Stipple setup =#
 
 Stipple.register_components(IrisModel, StippleCharts.COMPONENTS)
 
-# Instantiating a Stipple's ReactiveModel
-const ic_model = Stipple.init(IrisModel(), transport = WEB_TRANSPORT)
-
-#= Event handlers =#
-
-# Observable from stipple ReactiveModel...Calls f on updates to any observable refs in args
-#=
-onany(x, y) do xval, yval
-    println("At ", time()-tstart, ", we have x = ", xval, " and y = ", yval)
-end
-=#
-onany(ic_model.xfeature, ic_model.yfeature, ic_model.no_of_clusters, ic_model.no_of_iterations) do (_...)
-  ic_model.iris_plot_data[] = plot_data(:Species) # plot_data function defined in line 78
-  compute_clusters!()
-end
-
 #= Computation =#
 
-function plot_data(cluster_column::Symbol)
+function plot_data(cluster_column::Symbol, ic_model::IrisModel)
   result = Vector{PlotSeries}()
   isempty(ic_model.xfeature[]) || isempty(ic_model.yfeature[]) && return result
 
@@ -99,12 +81,12 @@ function plot_data(cluster_column::Symbol)
   result
 end
 
-function compute_clusters!()
+function compute_clusters!(ic_model::IrisModel)
   features = collect(Matrix(data[:, [Symbol(c) for c in ic_model.features[]]])')
   result = kmeans(features, ic_model.no_of_clusters[]; maxiter=ic_model.no_of_iterations[])
   data[!, :Cluster] = assignments(result)
   ic_model.iris_data[] = DataTable(data)
-  ic_model.cluster_plot_data[] = plot_data(:Cluster)
+  ic_model.cluster_plot_data[] = plot_data(:Cluster, ic_model)
 
   nothing
 end
@@ -118,8 +100,23 @@ end
 The ui function renders the user interface of the Iris Clustering data dashboard.
 """
 function ui(model::IrisModel)
+  #= Event handlers =#
+
+  # Observable from stipple ReactiveModel...Calls f on updates to any observable refs in args
+  #=
+  onany(x, y) do xval, yval
+      println("At ", time()-tstart, ", we have x = ", xval, " and y = ", yval)
+  end
+  =#
+  onany(model.xfeature, model.yfeature, model.no_of_clusters, model.no_of_iterations) do (_...)
+    model.iris_plot_data[] = plot_data(:Species, model) # plot_data function defined in line 78
+    compute_clusters!(model)
+  end
+
+  # UI
+
   page(
-    vm(model), class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
+    model, class="container", title="Iris Flowers Clustering", head_content=Genie.Assets.favicon_support(),
 
     prepend = style(
     """
@@ -193,7 +190,7 @@ end
 #= routing =#
 
 route("/") do
-  html([ui(ic_model)]) |> html
+  init(IrisModel(), transport = WEB_TRANSPORT) |> ui |> html
 end
 
 up(9000; async = true, server = Stipple.bootstrap()) # you can set async = true to interact with application in repl

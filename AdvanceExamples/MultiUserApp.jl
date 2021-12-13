@@ -10,8 +10,8 @@ using StippleUI
 
 import Stipple.JSONParser.JSONText
 
-Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
-                            host = "https://cdn.statically.io/gh/GenieFramework")
+# Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
+#                             host = "https://cdn.statically.io/gh/GenieFramework")
 
 # extra css for correct padding of st-br blocks ('st-pv' is not used here)
 const CSS = style("""
@@ -65,7 +65,7 @@ plot_options = opts(
 
 xx = Base.range(0, 4π, length=200) |> collect
 
-Base.@kwdef mutable struct MyDashboard <: ReactiveModel
+@reactive mutable struct MyDashboard <: ReactiveModel
     name::R{String} = "World"
     a::R{Float64} = 1.0
     b::R{Float64} = 0.0
@@ -75,9 +75,10 @@ Base.@kwdef mutable struct MyDashboard <: ReactiveModel
 end
 
 Stipple.register_components(MyDashboard, StippleCharts.COMPONENTS)
-models = Dict{String, ReactiveModel}()
 
-function ui(user)
+const models = Dict{String, ReactiveModel}()
+
+function model(user)
     channel = string(hash(user))
 
     model = if haskey(models, channel)
@@ -90,10 +91,15 @@ function ui(user)
             @info "amplitude: $a, phase: $b, offset: $c"
             model.plot_data[] = [PlotSeries("Sine", PlotData(zip(xx, a .* sin.(xx .- b) .+ c) |> collect))]
         end
+
         model
     end
+end
 
-    db = dashboard(root(model), class="container", [
+function ui(user)
+    CSS * dashboard(
+        model(user), class="container", [
+
         heading("Demo Stipple App with multi-user and multi-client support"),
 
         row(cell(class="st-module", [
@@ -123,13 +129,11 @@ function ui(user)
                 ])
             ])
         ]))),
+
         row(cell(class="st-module", plot(:plot_data; options=:plot_options))),
-        # make a nice bottom section
+
         footer(class="st-footer q-pa-md","Have some nicer footer here ...")
-        # alternatively do
-        # row("&nbsp;")
-    ], title = "Stipple x-y ApexChart", channel = channel)
-    return CSS * db |> html
+    ], title = "Stipple x-y ApexChart")
 end
 
 route("/") do
@@ -138,9 +142,7 @@ route("/") do
 end
 
 route("/session/:sid::Int") do
-  params(:sid) |> ui
+  params(:sid) |> ui |> html
 end
-
-Genie.config.server_host = "127.0.0.1"
 
 up(8500)

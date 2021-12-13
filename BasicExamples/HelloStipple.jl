@@ -1,34 +1,35 @@
 using Stipple, StippleUI
+using Random, Genie.Sessions
 
-# Stipple's ReactiveModel with name field which is mapped to frontend input
-# i.e. julia can access name's data in backend
-Base.@kwdef mutable struct Name <: ReactiveModel
-  name::R{String} = "Stipple!"
+Sessions.init()
+@reactive! struct Name <: ReactiveModel
+  name::R{String} = ""
 end
 
-hs_model = Stipple.init(Name())
+function ui(model)
+  on(model.isready) do _
+    model.name[] = Sessions.get!(:name, "")
+  end
 
-function ui()
+  on(model.name) do val
+    Sessions.set!(:name, val) |> Sessions.persist
+  end
+
   [
-    page(
-      vm(hs_model), class="container", title="Hello Stipple", partial=true,
-      [
-        row(
-          cell([
-            h1([
-              "Hello, "
-              span("", @text(:name))
-            ])
+    page(model, title="Hello Stipple", [
+      h1([
+        "Hello, "
+        span([], @text(:name))
+      ])
 
-            p([
-              "What is your name? "
-              input("", placeholder="Type your name", @bind(:name)) # bind is a replacement to vuejs's v-model
-            ])
-          ])
-        )
-      ]
-    )
-  ] |> html
+      p([
+        "What is your name? "
+        input("", placeholder="Type your name", @bind(:name))
+      ])
+    ], @iif(:isready))
+  ]
 end
 
-route("/", ui)
+route("/") do
+  Name(; channel = Sessions.get!(:channel, randstring(8))) |> init |> ui |> html
+end

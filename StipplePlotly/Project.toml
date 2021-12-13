@@ -8,5 +8,5 @@ StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
 Genie = "4"
-Stipple = "0.16"
-StipplePlotly = "0.6"
+Stipple = "0.16, 0.17"
+StipplePlotly = "0.6, 0.7"
