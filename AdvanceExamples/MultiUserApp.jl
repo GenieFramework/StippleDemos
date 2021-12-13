@@ -8,8 +8,6 @@ using Stipple
 using StippleCharts
 using StippleUI
 
-import Stipple.JSONParser.JSONText
-
 Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
                             host = "https://cdn.statically.io/gh/GenieFramework")
 
