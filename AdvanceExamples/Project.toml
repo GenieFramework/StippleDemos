@@ -6,7 +6,7 @@ StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
 Genie = "4"
-Stipple = "0.18.3"
-StippleCharts = "0.15"
-StippleUI = "0.12"
+Stipple = "0.19"
+StippleCharts = "0.16"
+StippleUI = "0.13"
 julia = "1.6"

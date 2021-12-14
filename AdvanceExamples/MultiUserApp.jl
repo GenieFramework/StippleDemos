@@ -8,8 +8,6 @@ using Stipple
 using StippleCharts
 using StippleUI
 
-import Stipple.JSONParser.JSONText
-
 # Genie.Assets.assets_config!([Genie, Stipple, StippleUI, StippleCharts],
 #                             host = "https://cdn.statically.io/gh/GenieFramework")
 
@@ -42,31 +40,29 @@ const CSS = style("""
     }
     """)
 
-# two helper functions for defining dictionaries
-OptDict = Dict{Symbol, Any}
-opts(;kwargs...) = OptDict(kwargs...)
-
-plot_options = OptDict(
+# helper function for defining dictionaries
+const OptDict = Dict{Symbol, Any}
+const plot_options = OptDict(
     :chart => OptDict(:type => :line),
     :xaxis => OptDict(:type => :numeric),
     :yaxis => OptDict(:min => -5, :max => 5, :tickAmount => 10,
-                      :labels => OptDict(:formatter => JSONText("function(val, index) { return val.toFixed(1); }"))
-              )
+                        :labels => OptDict(:formatter => JSONText("function(val, index) { return val.toFixed(1); }"))
+                )
 )
 
 # alternatively if you prefer python-style
-plot_options = opts(
-    chart = opts(type = :line),
-    xaxis = opts(type = :numeric),
-    yaxis = opts(min = -5, max = 5, tickAmount = 10,
-                 labels = opts(formatter = JSONText("function(val, index) { return val.toFixed(1); }"))
-            )
-)
+# opts(;kwargs...) = OptDict(kwargs...)
+# const plot_options = opts(
+#     chart = opts(type = :line),
+#     xaxis = opts(type = :numeric),
+#     yaxis = opts(min = -5, max = 5, tickAmount = 10,
+#                     labels = opts(formatter = JSONText("function(val, index) { return val.toFixed(1); }"))
+#             )
+# )
 
-xx = Base.range(0, 4π, length=200) |> collect
+const xx = Base.range(0, 4π, length=200) |> collect
 
 @reactive mutable struct MyDashboard <: ReactiveModel
-    name::R{String} = "World"
     a::R{Float64} = 1.0
     b::R{Float64} = 0.0
     c::R{Float64} = 0.0
@@ -76,15 +72,13 @@ end
 
 Stipple.register_components(MyDashboard, StippleCharts.COMPONENTS)
 
-const models = Dict{String, ReactiveModel}()
+models = Dict{String, ReactiveModel}()
 
-function model(user)
-    channel = string(hash(user))
-
-    model = if haskey(models, channel)
+function model(channel)
+    if haskey(models, channel)
         models[channel]
     else
-        model = models[channel] = Stipple.init(MyDashboard(), channel = channel)
+        model = models[channel] = init(MyDashboard, channel = channel)
 
         # update plot_data when a, b or c are changed
         onany(model.a, model.b, model.c) do a, b, c
@@ -92,57 +86,54 @@ function model(user)
             model.plot_data[] = [PlotSeries("Sine", PlotData(zip(xx, a .* sin.(xx .- b) .+ c) |> collect))]
         end
 
+        on(model.isready) do val
+            push!(model)
+        end
+
         model
     end
 end
 
-function ui(user)
-    CSS * dashboard(
-        model(user), class="container", [
+function ui(user_id)
+        CSS *
+        page(model(user_id), class="container", [
 
-        heading("Demo Stipple App with multi-user and multi-client support"),
+        heading("Demo Stipple App with multi-user and multi-client support (user $user_id)")
 
-        row(cell(class="st-module", [
-                h2(["Hello ", span("", @text(:name)), "!"]),
-                p("I am $user")
-        ])),
-
-        row(cell(class="st-module", row([
+        row([
             cell(class="st-br st-ph", [
-                h5("What is your name?"),
-                textfield("", :name, placeholder="type your name", label="Name", outlined="", filled="")
-            ]),
+                h5("Sine oder Cosine?")
 
-            cell(class="st-br st-ph", [
-                h5("Sine oder Cosine?"),
                 row([
-                    cell(size=4, h6("Amplitude")),
+                    cell(size=4, h6("Amplitude"))
                     cell(slider( 0:0.01:5, @data(:a); markers=true, label=true, labelalways = true))
-                ]),
+                ])
+
                 row([
-                    cell(size=4, h6("Phase")),
+                    cell(size=4, h6("Phase"))
                     cell(slider( 0:0.01:5, @data(:b); markers=true, label=true, labelalways = true))
-                ]),
+                ])
+
                 row([
-                    cell(size=4, h6("Offset")),
+                    cell(size=4, h6("Offset"))
                     cell(slider( -3:0.01:3, @data(:c); markers=true, label=true, labelalways = true))
                 ])
             ])
-        ]))),
+        ])
 
-        row(cell(class="st-module", plot(:plot_data; options=:plot_options))),
+        row(cell(class="st-module", plot(:plot_data; options=:plot_options)))
 
         footer(class="st-footer q-pa-md","Have some nicer footer here ...")
-    ], title = "Stipple x-y ApexChart")
+    ], title = "Stipple x-y ApexChart", @iif(:isready))
 end
 
 route("/") do
-  # deliver a user-spcific ui
-  redirect("/session/$(rand(1:1_000_000))")
+    # deliver a user-spcific ui
+    redirect("/session/$(rand(1:1_000_000))")
 end
 
-route("/session/:sid::Int") do
-  params(:sid) |> ui |> html
+route("/session/:sid") do
+    params(:sid) |> ui |> html
 end
 
 up(8500)

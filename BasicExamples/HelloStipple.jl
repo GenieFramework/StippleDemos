@@ -2,7 +2,7 @@ using Stipple, StippleUI
 using Random, Genie.Sessions
 
 Sessions.init()
-@reactive! struct Name <: ReactiveModel
+@reactive! mutable struct Name <: ReactiveModel
   name::R{String} = ""
 end
 
@@ -31,5 +31,5 @@ function ui(model)
 end
 
 route("/") do
-  Name(; channel = Sessions.get!(:channel, randstring(8))) |> init |> ui |> html
+  init(Name) |> ui |> html
 end
