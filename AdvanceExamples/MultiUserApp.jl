@@ -86,8 +86,8 @@ function model(channel)
             model.plot_data[] = [PlotSeries("Sine", PlotData(zip(xx, a .* sin.(xx .- b) .+ c) |> collect))]
         end
 
-        on(model.isready) do val
-            push!(model)
+        on(model.isready) do _
+            push!(model, skip = [:plot_options])
         end
 
         model
@@ -123,7 +123,11 @@ function ui(user_id)
 
         row(cell(class="st-module", plot(:plot_data; options=:plot_options)))
 
-        footer(class="st-footer q-pa-md","Have some nicer footer here ...")
+        row([
+            footer([
+                h6("Powered by Stipple")
+            ])
+        ])
     ], title = "Stipple x-y ApexChart", @iif(:isready))
 end
 
