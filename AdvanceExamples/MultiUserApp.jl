@@ -67,7 +67,7 @@ const xx = Base.range(0, 4π, length=200) |> collect
     b::R{Float64} = 0.0
     c::R{Float64} = 0.0
     plot_data::R{Vector{PlotSeries}} = [PlotSeries("Sine", PlotData(zip(xx, a .* sin.(xx .- b) .+ c) |> collect))]
-    plot_options::OptDict = plot_options
+    plot_options::R{OptDict} = plot_options, JSFUNCTION
 end
 
 Stipple.register_components(MyDashboard, StippleCharts.COMPONENTS)
@@ -87,7 +87,7 @@ function model(channel)
         end
 
         on(model.isready) do _
-            push!(model, skip = [:plot_options])
+            push!(model)
         end
 
         model
