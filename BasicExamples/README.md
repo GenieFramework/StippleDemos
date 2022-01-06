@@ -2,7 +2,8 @@
 
 ## Run Demo
 ```julia
-julia> julia --project
+$ cd path-to-BasicExamples
+$ julia --project
 julia> #enter package mode with ]
 (@v1.x) pkg> activate .
 (@v1.x) pkg> instantiate
