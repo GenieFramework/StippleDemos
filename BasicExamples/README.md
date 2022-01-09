@@ -27,10 +27,11 @@ julia> down() # stop the running async instance of Genie Server
 
 ### Form Compontent
 
-| Components              | Demo                               |
-|-------------------------|------------------------------------|
-| **Card Component**      | ![Form](docs/content/img/Card.png)  |
-| **DatePicker Component**| ![Form](docs/content/img/DatePickers.png) |
-| **Form Component**      | ![Form](docs/content/img/Form.png) |
-| **Hello Pie**           | ![Form](docs/content/img/HelloPie.png)  |
-| **Hello Stipple**       | ![Form](docs/content/img/HelloStipple.png) |
+| Components               | Demo                                       |
+|--------------------------|--------------------------------------------|
+| **Card Component**       | ![Form](docs/content/img/Card.png)         |
+| **DatePicker Component** | ![Form](docs/content/img/DatePickers.png)  |
+| **Form Component**       | ![Form](docs/content/img/Form.png)         |
+| **Hello Pie**            | ![Form](docs/content/img/HelloPie.png)     |
+| **Hello Stipple**        | ![Form](docs/content/img/HelloStipple.png) |
+| **Checkboxes**           | ![Form](docs/content/img/Checkboxes.png)   |
