@@ -117,18 +117,6 @@ end
     cameratimer::Int = 0
 end
 
-function restart()
-    global model
-    model = Stipple.init(WebCam, debounce=0)
-
-    start_camera()
-
-    on(model.cameraon) do ison
-        ison ? start_camera() : killcam()
-    end
-end
-
-
 Stipple.js_methods(model::WebCam) = """
     updateimage: function () { 
         this.imageurl = "frame/" + new Date().getTime();
@@ -152,27 +140,31 @@ Stipple.js_watch(model::WebCam) = """
     }
 """
 
-function ui()
-    m = dashboard(model, [      
+function ui(model)
+    start_camera()
+
+    on(model.cameraon) do ison
+        ison ? start_camera() : killcam()
+    end
+
+    dashboard(model, [      
             p(quasar(:img, "", src=:imageurl, :basic, style="
                 -webkit-app-region: drag;
                 border-radius: 50%;
                 width: 95vw;
                 height: 95vw"),
             style = "margin: 1px"),
-        # ])),
-        # row(cell(class="st-module", [
+
             p(toggle("", fieldname = :cameraon)),
-        # ]))
     ], title = "WebCam") * 
     script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#0000")""") *
     style("::-webkit-scrollbar { width: 0px; }")
-
-    return html(m)
 end
 
 
-route("/", ui)
+route("/") do
+    init(WebCam) |> ui |> html
+end
 
 route("frame/:timestamp") do 
     HTTP.Messages.Response(200, IMG[])
@@ -180,16 +172,20 @@ end
 
 Genie.config.server_host = "127.0.0.1"
 
-restart()
-
 up(PORT)
 
 using Electron
 
-win = Window(URI("http://localhost:$PORT"), options = Dict(
-    "transparent" => true,
-    "frame" => false,
-    "width" => 145,
-    "height" => 200,
-    "alwaysOnTop" => true,
-))
+function camerawidget()
+    win = Window(URI("http://localhost:$PORT"), options = Dict(
+        "transparent" => true,
+        "frame" => false,
+        "width" => 145,
+        "height" => 200,
+    ))
+    
+    ElectronAPI.setAlwaysOnTop(win, true)
+    win
+end
+
+win = camerawidget()
