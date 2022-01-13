@@ -8,11 +8,12 @@ using FFMPEG_jll, FileIO
 const SX = 640
 const SY = 360
 const FPS = 30 # some cameras only support fix values, e.g. 30
-const FPS_CLIENT = 5
+const FPS_CLIENT = 25
 const FMT = Sys.iswindows() ? "dshow" : "v4l2"
 const DEVICE = Sys.iswindows() ? "video=\"Integrated Webcam\"" : "/dev/video0"
 const CAM_PROCESS = Ref(run(Sys.iswindows() ? `cmd /C` : `echo`)) # a container for the process running ffmpeg
 const IMG = Ref{Vector{UInt8}}() # a container for the last frame
+const PORT = 8000
 
 # capture output, std_out, std_err and error information in case of failure
 macro capture(expr)
@@ -110,7 +111,7 @@ function start_camera() # restart camera
     CAM_PROCESS[] = _start_camera()
 end
 
-Stipple.@kwdef mutable struct WebCam <: ReactiveModel
+@reactive! mutable struct WebCam <: ReactiveModel
     cameraon::R{Bool} = true
     imageurl::String = ""
     cameratimer::Int = 0
@@ -118,7 +119,7 @@ end
 
 function restart()
     global model
-    model = Stipple.init(WebCam(), debounce=1)
+    model = Stipple.init(WebCam, debounce=0)
 
     start_camera()
 
@@ -152,15 +153,20 @@ Stipple.js_watch(model::WebCam) = """
 """
 
 function ui()
-    m = dashboard(vm(model), [      
-        heading("WebCam"),
-        row(cell(class="st-module", [ # using <img/> instead of quasar's becuase of the `img id = "frame"` that is used by the JS above to update the `src` from the client side
-            quasar(:img, "", src=:imageurl, :basic, style="height: 140px; max-width: 150px")
-        ])),
-        row(cell(class="st-module", [
-            p(toggle("Camera on", fieldname = :cameraon)),
-        ]))
-    ], title = "WebCam")
+    m = dashboard(model, [      
+            p(quasar(:img, "", src=:imageurl, :basic, style="
+                -webkit-app-region: drag;
+                border-radius: 50%;
+                width: 95vw;
+                height: 95vw"),
+            style = "margin: 1px"),
+        # ])),
+        # row(cell(class="st-module", [
+            p(toggle("", fieldname = :cameraon)),
+        # ]))
+    ], title = "WebCam") * 
+    script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#0000")""") *
+    style("::-webkit-scrollbar { width: 0px; }")
 
     return html(m)
 end
@@ -175,3 +181,15 @@ end
 Genie.config.server_host = "127.0.0.1"
 
 restart()
+
+up(PORT)
+
+using Electron
+
+win = Window(URI("http://localhost:$PORT"), options = Dict(
+    "transparent" => true,
+    "frame" => false,
+    "width" => 145,
+    "height" => 200,
+    "alwaysOnTop" => true,
+))
