@@ -1,17 +1,23 @@
 # Requires a webcam to be connected to the computer running this
+# uses VideoUI only for determination of camera names and format
+# images are converted to png by ffmpg
+# Camera can be chosen by setting DEVICE_NO, e.g. `DEVICE_NO[] = 2`
 
 using Stipple, StippleUI
 using HTTP
-using FFMPEG_jll, FileIO
+using FFMPEG_jll, FileIO, VideoIO
+import FFMPEG_jll.ffmpeg
 
+import Base.cconvert
+Base.cconvert(::Type{Ptr{Ptr{VideoIO.AVDictionary}}}, d::VideoIO.AVDict) = d.ref_ptr_dict
 
 const SX = 640
 const SY = 360
 const FPS = 30 # some cameras only support fix values, e.g. 30
 const FPS_CLIENT = 25
-const FMT = Sys.iswindows() ? "dshow" : "v4l2"
-const DEVICE = Sys.iswindows() ? "video=\"Integrated Webcam\"" : "/dev/video0"
-const CAM_PROCESS = Ref(run(Sys.iswindows() ? `cmd /C` : `echo`)) # a container for the process running ffmpeg
+const FMT = Ref(unsafe_load(VideoIO.DEFAULT_CAMERA_FORMAT[]).name |> unsafe_string)
+const DEVICE_NO = Ref(1)
+const CAM_PROCESS = Ref(run(Sys.iswindows() ? `cmd /C` : `echo`)) # a container for the ffmpeg process
 const IMG = Ref{Vector{UInt8}}() # a container for the last frame
 const PORT = 8000
 
@@ -73,41 +79,28 @@ function readpngdata(io) # taken from Per Rutquist (@Per) https://github.com/per
     return a
 end
 
-import FFMPEG_jll.ffmpeg
 ffmpeg(f, cmd::Cmd; kwargs...) = ffmpeg(f ∘ (x->`$x $cmd`); kwargs...)
 ffmpeg(cmd::Cmd; kwargs...) = ffmpeg(String ∘ read, cmd; kwargs...)
 
-function _get_camera()
-    # strangely ffmpeg outputs to std_err and exits with exit code 1
-    # so we have to do some acrobatics to capture its output
-    (_, _, out) = @capture ffmpeg(`-list_devices true -f dshow -i dummy`)
-    
-    # exctract the name of the first video device
-    m = match(r"""DirectShow video devices.+?"([^"]+)"""s, out)
-    isnothing(m) ? "" : m.captures[1]
-end
-
 _start_camera() = ffmpeg() do exe
-    device = if Sys.iswindows()
-        cam = _get_camera()
-        cam == "" ? `no_device_found` : `video=$cam`
-    else
-        DEVICE
+    device = string("video=", get(VideoIO.CAMERA_DEVICES, DEVICE_NO[], "0"))
+    @info "starting camera with '$device'"
+    cam_process = open(`$exe -hide_banner -loglevel error -f $(FMT[]) -r $FPS -s $(SX)x$(SY) -i $device -c:v png -f image2pipe -`)
+    @async while process_running(cam_process) # update the last frame from the pipe
+        IMG[] = readpngdata(cam_process)
     end
-    io = open(`$exe -hide_banner -loglevel error -f $FMT -r $FPS -s $(SX)x$SY -i $device -c:v png -f image2pipe -`)
-    @async while process_running(io) # update the last frame from the pipe
-        IMG[] = readpngdata(io)
-    end
-    return io
+    return cam_process
 end
 
-killcam() = while !process_exited(CAM_PROCESS[]) # make sure camera is dead
-    kill(CAM_PROCESS[])
-    sleep(0.1)
+function stop_camera()
+    while !process_exited(CAM_PROCESS[])
+        kill(CAM_PROCESS[])
+        sleep(0.1)
+    end
 end
 
 function start_camera() # restart camera
-    killcam()
+    stop_camera()
     CAM_PROCESS[] = _start_camera()
 end
 
@@ -122,7 +115,7 @@ Stipple.js_methods(model::WebCam) = """
         this.imageurl = "frame/" + new Date().getTime();
     },
     startcamera: function () { 
-        this.cameratimer = setInterval(this.updateimage, 1000/$FPS_CLIENT);
+        this.cameratimer = setInterval(this.updateimage, 1000/$(FPS_CLIENT));
     },
     stopcamera: function () { 
         clearInterval(this.cameratimer);
@@ -144,7 +137,7 @@ function ui(model)
     start_camera()
 
     on(model.cameraon) do ison
-        ison ? start_camera() : killcam()
+        ison ? start_camera() : stop_camera()
     end
 
     dashboard(model, [      
@@ -166,7 +159,8 @@ route("/") do
     init(WebCam) |> ui |> html
 end
 
-route("frame/:timestamp") do 
+route("frame/:timestamp") do
+    global IMG
     HTTP.Messages.Response(200, IMG[])
 end
 
