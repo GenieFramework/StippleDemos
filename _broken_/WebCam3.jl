@@ -5,6 +5,8 @@
 # - supports two update modes: "webchannel" (default) and "url"
 # - supports multiple cameras, hardware and models are separated
 # - browser refresh rate (model.fps) is reflected after reactivating the camera
+# - model.fps = 0 together with model.updatemode = "webchannel" will update as fast as possible
+# - this is the new default, so please provide model.fps > 0 in "url" updatemode.
 
 # Note: currently I have defined a global model in order to easily play with the values from the REPL
 # in a productive application that might be removed
@@ -29,7 +31,7 @@ Base.@kwdef mutable struct Camera
 
     sx::Int = 640
     sy::Int = 360
-    fps::Int = 30
+    fps::Int = 0 # auto in "webchannel" updatemode
 end
 
 const PORT = 8000
@@ -127,7 +129,11 @@ Stipple.js_methods(model::WebCam) = """
         }
     },
     startcamera: function () { 
-        this.cameratimer = setInterval(this.updateimage, 1000/this.fps);
+        if (this.fps) {
+            this.cameratimer = setInterval(this.updateimage, 1000/this.fps);
+        } else {
+            this.updateimage()
+        }
     },
     stopcamera: function () { 
         clearInterval(this.cameratimer);
@@ -143,6 +149,12 @@ Stipple.js_watch(model::WebCam) = """
     cameraon: function (newval, oldval) { 
         this.stopcamera()
         if (newval) { this.startcamera() }
+    },
+
+    request_image: function (newval, oldval) { 
+        if (this.cameraon & this.updatemode == "webchannels" & this.fps == 0 & ! this.request_image) { 
+            this.request_image = true
+        }
     }
 """
 
@@ -153,7 +165,6 @@ function handlers(model)
     end
 
     on(model.cameraon) do ison
-        @info model.camera
         haskey(CAMERAS, model.camera[]) || return
         camera = CAMERAS[model.camera[]]
         ison ? start_camera(camera) : stop_camera(camera)
