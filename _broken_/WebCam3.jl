@@ -152,7 +152,7 @@ Stipple.js_watch(model::WebCam) = """
     },
 
     request_image: function (newval, oldval) { 
-        if (this.cameraon & this.updatemode == "webchannels" & this.fps == 0 & ! this.request_image) { 
+        if (this.cameraon & this.updatemode == "webchannel" & this.fps == 0 & ! this.request_image) { 
             this.request_image = true
         }
     }
