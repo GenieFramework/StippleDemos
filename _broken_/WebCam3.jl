@@ -31,7 +31,7 @@ Base.@kwdef mutable struct Camera
 
     sx::Int = 640
     sy::Int = 360
-    fps::Int = 0 # auto in "webchannel" updatemode
+    fps::Int = 30 # auto in "webchannel" updatemode
 end
 
 const PORT = 8000
@@ -114,7 +114,7 @@ end
     # this can be chosen a higher number than the hardware resfresh rate, e.g. 100, as the browser will skip frames
     # as long as the previous frame has not been transferred. Very high rates will decrease browser performance, though.
     # There are 
-    fps::R{Int} = 10 
+    fps::R{Int} = 0 
 
     img::R{Vector{UInt8}} = Vector{UInt8}(), PRIVATE
     image::R{String} = ""
