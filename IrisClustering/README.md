@@ -6,6 +6,7 @@ julia> julia --project
 julia> #enter package mode with ]
 (@v1.x) pkg> activate .
 (@v1.x) pkg> instantiate
+(@v1.x) pkg> up
 (@v1.x) pkg> #exit package mode with <backspace key>
 julia> include("IrisClustering.jl")
 ```
