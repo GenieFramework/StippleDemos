@@ -19,4 +19,4 @@ ENV GENIE_ENV "dev"
 ENV HOST "0.0.0.0"
 ENV EARLYBIND "true"
 
-CMD julia -e 'using Pkg; Pkg.activate("."); include("IrisClustering.jl"); '
+CMD julia -e 'using Pkg; Pkg.activate("."); include("IrisClustering_StipplePlotly.jl"); '
