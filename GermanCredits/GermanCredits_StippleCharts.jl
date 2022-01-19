@@ -22,11 +22,11 @@ const bar_plot_opts = PlotOptions(xaxis_tick_amount=10, xaxis_max=350, chart_typ
 
 
 # reading data from CSV file and contrucing data frame 
-cd(@__DIR__)
+# cd(@__DIR__) 
 data = CSV.File("data/german_credit.csv") |> DataFrame
 
 # Defining a Stipple ReactiveModel of type observable 
-Base.@kwdef mutable struct Dashboard1 <: ReactiveModel
+@reactive mutable struct Dashboard1 <: ReactiveModel
   credit_data::R{DataTable} = DataTable()
   credit_data_pagination::DataTablePagination = DataTablePagination(rows_per_page=100)
   credit_data_loading::R{Bool} = false
@@ -99,7 +99,7 @@ end
 Stipple.register_components(Dashboard1, StippleCharts.COMPONENTS)
 
 # Instantiating Reactive Model isntantace 
-gc_model = setmodel(data, Dashboard1()) |> Stipple.init
+gc_model = setmodel(data, Dashboard1()) |> init
 
 function filterdata(model::Dashboard1)
   model.credit_data_loading[] = true
@@ -110,8 +110,8 @@ function filterdata(model::Dashboard1)
 end
 
 function ui(model)
-  [
-  dashboard(vm(model), title="German Credits",
+  (
+  page(model, title="German Credits",
             head_content = Genie.Assets.favicon_support(), partial = false,
   [
     heading("German Credits by Age")
@@ -192,7 +192,7 @@ function ui(model)
       ])
     ])
   ])
-  ]
+  )
 end
 
 # handlers
@@ -205,4 +205,4 @@ route("/") do
   ui(gc_model) |> html
 end
 
-up(rand((8000:9000)), open_browser=true)
+up()
