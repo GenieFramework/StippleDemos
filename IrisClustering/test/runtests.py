@@ -9,5 +9,16 @@ with sync_playwright() as p:
   sliders[1].click()
 
   # print(type(sliders[0].getproperties()))
-  print(sliders[0].get_property("model"))
+  # print(sliders[0].get_property("model"))
+
+  selects = page.query_selector_all("_vue=QSelect")
+  selects[1].click()
+  # menu = selects[1].query_selector("_vue=QMenu")
+  # menu = page.query_selector_all("_vue=QSelect[data=model]")
+
+  menu = page.query_selector('_vue=QSelect').query_selector('#_vue=QMenu')
+  print(type(menu))
+  
+  print(menu)
+  
   browser.close()
