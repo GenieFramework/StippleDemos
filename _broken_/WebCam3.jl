@@ -189,14 +189,19 @@ function ui(model)
                 border-radius: 50%;
                 width: 95vw;
                 height: 95vw"),
-            style = "margin: 1px"),
+            style = "margin: 2.5vw"),
 
             p(toggle("", fieldname = :cameraon)),
     ], title = "WebCam") * 
     script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#0000")""") *
-    style("::-webkit-scrollbar { width: 0px; }")
+    style("""
+        ::-webkit-scrollbar { width: 0px; }
+        body:hover { background: #ffcccc00 }
+    """)
 end
 
+# for debugging
+# ElectronAPI.reload(win)
 
 route("/") do
     global model
@@ -217,7 +222,7 @@ Genie.config.server_host = "127.0.0.1"
 
 up(PORT)
 
-using Electron
+using Electron, JSON
 
 function camerawidget()
     win = Window(URI("http://localhost:$PORT"), options = Dict(
@@ -228,6 +233,32 @@ function camerawidget()
     ))
     
     ElectronAPI.setAlwaysOnTop(win, true)
+    ElectronAPI.on(win, "resize", JSON.JSONText("""function() { 
+        win = electron.BrowserWindow.fromId($(win.id))
+        if (win.oldBounds === undefined) { win.oldBounds = win.getBounds() }
+        newBounds = win.getBounds()
+        startBounds = win.getBounds()
+
+        if (Math.abs(win.oldBounds.width - newBounds.width) < 5) {
+            height = newBounds.height
+            width = height - 45
+        } else if (Math.abs(win.oldBounds.height - newBounds.height) < 5) {
+            width = newBounds.width
+            height = width + 45
+        }
+        
+        if (Math.abs(win.oldBounds.width - width) < 3 & Math.abs(win.oldBounds.height - height) < 3) {
+            console.log('not resized')
+            win.oldBounds = startBounds
+            return
+        }
+        
+        newBounds.width = width
+        newBounds.height = height
+
+        win.oldBounds = newBounds
+        win.setBounds(newBounds)
+    }"""))
     win
 end
 
