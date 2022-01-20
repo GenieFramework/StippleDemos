@@ -14,17 +14,13 @@ with sync_playwright() as p:
   selects = page.query_selector_all("_vue=QSelect")
   selects[0].click()
 
-
-  # menu = selects[1].query_selector("_vue=QMenu")
-  # menu = page.query_selector_all("_vue=QSelect[data=model]")
-
-  # menu = page.query_selector('_vue=QSelect').query_selector('#_vue=QMenu')
-  # print(type(menu))
-  
-  # print(menu)
-
-  # _vue=QSelect >> _vue=QMenu
   menu = page.query_selector("_vue=QItem >> nth=0")
+  menu.click()
+
+  selects = page.query_selector_all("_vue=QSelect")
+  selects[1].click()
+
+  menu = page.query_selector("_vue=QItem >> nth=2")
   menu.click()
 
   browser.close()
