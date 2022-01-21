@@ -193,7 +193,7 @@ function ui(model)
 
             p(toggle("", fieldname = :cameraon)),
     ], title = "WebCam") * 
-    script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#fff1")""") *
+    script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#fff0")""") *
     style("""
         ::-webkit-scrollbar { width: 0px; }
         body:hover { background: #ffcccc00 }
@@ -233,13 +233,15 @@ function camerawidget()
     ))
     
     ElectronAPI.setAlwaysOnTop(win, true)
+
     # initialize `oldSize`
     wsize = ElectronAPI.getSize(win)
     run(win.app, "oldSize = $(JSON.json(wsize))")
     
+    # implement auto resize on dragging of the side handles
+    # resizing by the edge handles works only poorly
     ElectronAPI.on(win, "resize", JT("""function() {
         win = electron.BrowserWindow.fromId($(win.id))
-        console.log(win)
         newSize = win.getSize()
 
         if (Math.abs(oldSize[0] - newSize[0]) < 5) {
@@ -251,7 +253,6 @@ function camerawidget()
         }
         
         if (Math.abs(oldSize[0] - newSize[0]) < 3 & Math.abs(oldSize[1] - newSize[1]) < 3) {
-            console.log('not resized')
             oldSize = newSize
             return
         }
