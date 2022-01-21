@@ -193,15 +193,15 @@ function ui(model)
 
             p(toggle("", fieldname = :cameraon)),
     ], title = "WebCam") * 
-    script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#0000")""") *
+    script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#fff1")""") *
     style("""
         ::-webkit-scrollbar { width: 0px; }
-        body:hover { background: #ffcccc00 }
+        body:hover { background: #ffcccc11 }
     """)
 end
 
 # for debugging
-# ElectronAPI.reload(win)
+ElectronAPI.reload(win)
 
 route("/") do
     global model
@@ -233,31 +233,31 @@ function camerawidget()
     ))
     
     ElectronAPI.setAlwaysOnTop(win, true)
-    ElectronAPI.on(win, "resize", JSON.JSONText("""function() { 
+    # initialize `oldSize`
+    wsize = ElectronAPI.getSize(win)
+    run(win.app, "oldSize = $(JSON.json(wsize))")
+    
+    ElectronAPI.on(win, "resize", JT("""function() {
         win = electron.BrowserWindow.fromId($(win.id))
-        if (win.oldBounds === undefined) { win.oldBounds = win.getBounds() }
-        newBounds = win.getBounds()
-        startBounds = win.getBounds()
+        console.log(win)
+        newSize = win.getSize()
 
-        if (Math.abs(win.oldBounds.width - newBounds.width) < 5) {
-            height = newBounds.height
+        if (Math.abs(oldSize[0] - newSize[0]) < 5) {
+            height = newSize[1]
             width = height - 45
-        } else if (Math.abs(win.oldBounds.height - newBounds.height) < 5) {
-            width = newBounds.width
+        } else if (Math.abs(oldSize[1] - newSize[1]) < 5) {
+            width = newSize[0]
             height = width + 45
         }
         
-        if (Math.abs(win.oldBounds.width - width) < 3 & Math.abs(win.oldBounds.height - height) < 3) {
+        if (Math.abs(oldSize[0] - newSize[0]) < 3 & Math.abs(oldSize[1] - newSize[1]) < 3) {
             console.log('not resized')
-            win.oldBounds = startBounds
+            oldSize = newSize
             return
         }
         
-        newBounds.width = width
-        newBounds.height = height
-
-        win.oldBounds = newBounds
-        win.setBounds(newBounds)
+        oldSize = [width, height]
+        win.setSize(width, height)
     }"""))
     win
 end
