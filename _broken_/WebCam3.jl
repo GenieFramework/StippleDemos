@@ -196,7 +196,7 @@ function ui(model)
     script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#fff1")""") *
     style("""
         ::-webkit-scrollbar { width: 0px; }
-        body:hover { background: #ffcccc11 }
+        body:hover { background: #ffcccc00 }
     """)
 end
 
