@@ -201,7 +201,7 @@ function ui(model)
 end
 
 # for debugging
-ElectronAPI.reload(win)
+# ElectronAPI.reload(win)
 
 route("/") do
     global model
@@ -234,13 +234,17 @@ function camerawidget()
     
     ElectronAPI.setAlwaysOnTop(win, true)
 
-    # initialize `oldSize`
+    # initialize `oldSize`, `width` and `height`
     wsize = ElectronAPI.getSize(win)
-    run(win.app, "oldSize = $(JSON.json(wsize))")
+    run(win.app, """
+        oldSize = $(JSON.json(wsize))
+        width = oldSize[0]
+        height = oldSize[1]
+    """)
     
     # implement auto resize on dragging of the side handles
     # resizing by the edge handles works only poorly
-    ElectronAPI.on(win, "resize", JT("""function() {
+    ElectronAPI.on(win, "resize", JSON.JSONText("""function() {
         win = electron.BrowserWindow.fromId($(win.id))
         newSize = win.getSize()
 
