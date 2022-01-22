@@ -3,7 +3,7 @@ using StippleUI
 
 # CardDemo definition inheriting from ReactiveModel
 # Base.@kwdef: that defines keyword based contructor of mutable struct
-Base.@kwdef mutable struct CardDemo <: ReactiveModel
+@reactive mutable struct CardDemo <: ReactiveModel
 
 end
 
@@ -11,10 +11,10 @@ end
 # returns {ReactiveModel}
 hs_model = Stipple.init(CardDemo())
 
-function ui()
+function ui(model)
     [
         page( # page generates HTML code for Single Page Application 
-            vm(hs_model), class="container", title="Card Demo", partial=true,
+            model, class="container", title="Card Demo", partial=true,
             [
                 row( # row takes a tuple of cells. Creates a `div` HTML element with a CSS class named `row`.
                     cell([
@@ -40,4 +40,9 @@ function ui()
     ]
 end
 
-route("/", ui)
+route("/") do 
+    model = CardDemo |> init
+    html(ui(model), context = @__MODULE__)
+end
+
+up()
