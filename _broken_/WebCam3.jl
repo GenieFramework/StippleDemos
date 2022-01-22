@@ -189,14 +189,19 @@ function ui(model)
                 border-radius: 50%;
                 width: 95vw;
                 height: 95vw"),
-            style = "margin: 1px"),
+            style = "margin: 2.5vw"),
 
             p(toggle("", fieldname = :cameraon)),
     ], title = "WebCam") * 
-    script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#0000")""") *
-    style("::-webkit-scrollbar { width: 0px; }")
+    script("""document.documentElement.style.setProperty("--st-dashboard-bg", "#fff0")""") *
+    style("""
+        ::-webkit-scrollbar { width: 0px; }
+        body:hover { background: #ffcccc00 }
+    """)
 end
 
+# for debugging
+# ElectronAPI.reload(win)
 
 route("/") do
     global model
@@ -217,7 +222,7 @@ Genie.config.server_host = "127.0.0.1"
 
 up(PORT)
 
-using Electron
+using Electron, JSON
 
 function camerawidget()
     win = Window(URI("http://localhost:$PORT"), options = Dict(
@@ -228,6 +233,37 @@ function camerawidget()
     ))
     
     ElectronAPI.setAlwaysOnTop(win, true)
+
+    # initialize `oldSize`, `width` and `height`
+    wsize = ElectronAPI.getSize(win)
+    run(win.app, """
+        oldSize = $(JSON.json(wsize))
+        width = oldSize[0]
+        height = oldSize[1]
+    """)
+    
+    # implement auto resize on dragging of the side handles
+    # resizing by the edge handles works only poorly
+    ElectronAPI.on(win, "resize", JSON.JSONText("""function() {
+        win = electron.BrowserWindow.fromId($(win.id))
+        newSize = win.getSize()
+
+        if (Math.abs(oldSize[0] - newSize[0]) < 5) {
+            height = newSize[1]
+            width = height - 45
+        } else if (Math.abs(oldSize[1] - newSize[1]) < 5) {
+            width = newSize[0]
+            height = width + 45
+        }
+        
+        if (Math.abs(oldSize[0] - newSize[0]) < 3 & Math.abs(oldSize[1] - newSize[1]) < 3) {
+            oldSize = newSize
+            return
+        }
+        
+        oldSize = [width, height]
+        win.setSize(width, height)
+    }"""))
     win
 end
 
