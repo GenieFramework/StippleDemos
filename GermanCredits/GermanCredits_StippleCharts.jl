@@ -22,7 +22,7 @@ const bar_plot_opts = PlotOptions(xaxis_tick_amount=10, xaxis_max=350, chart_typ
 
 
 # reading data from CSV file and contrucing data frame 
-# cd(@__DIR__) 
+cd(@__DIR__)
 data = CSV.File("data/german_credit.csv") |> DataFrame
 
 # Defining a Stipple ReactiveModel of type observable 
