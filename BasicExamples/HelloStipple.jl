@@ -33,3 +33,5 @@ end
 route("/") do
   init(Name) |> ui |> html
 end
+
+up()

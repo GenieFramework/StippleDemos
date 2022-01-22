@@ -6,7 +6,7 @@ using Stipple, StippleUI
 const NO = StippleUI.NO_WRAPPER # NO_WRAPPER is anonymous function f->f()
 
 # name, age are type Observable 
-Stipple.@kwdef mutable struct FormComponent <: ReactiveModel
+@reactive mutable struct FormComponent <: ReactiveModel
     name::R{String} = ""
     age::R{Int} = 0
     objects::R{Vector} = ["Dog", "Cat", "Beer"]
@@ -15,7 +15,6 @@ end
 
 # passing FormComponent object(contruction) for 2-way integration between Julia and JavaScript
 # returns {ReactiveModel}
-const hs_model = Stipple.init(FormComponent())
 
 myform() = xelem(:div, class="q-pa-md", style="max-width: 400px", [
     StippleUI.form([ # <form functioncall takes array of functioncalls <textfield>, <numberfield>, <toggle> & <div wrapping two buttons>
@@ -79,13 +78,16 @@ js_methods(m::FormComponent) = raw"""
 import Stipple.client_data
 client_data(m::FormComponent) = client_data(client_name = js"null", client_age = js"null", accept = false)
 
-function ui()
-    page(vm(hs_model), class="container", title="Hello Stipple", 
+function ui(model)
+    page(model, class="container", title="Hello Stipple", 
         myform()
     )
 end
 
 # Using Genie Route to serve ui
-route("/", ui)
+route("/") do 
+  hs_model = FormComponent |> init
+  ui(hs_model)
+end
 
-
+up()
