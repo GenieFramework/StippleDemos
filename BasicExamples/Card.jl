@@ -4,12 +4,7 @@ using StippleUI
 # CardDemo definition inheriting from ReactiveModel
 # Base.@kwdef: that defines keyword based contructor of mutable struct
 @reactive mutable struct CardDemo <: ReactiveModel
-
 end
-
-# passing CardDemo object(contruction) for 2-way integration between Julia and JavaScript
-# returns {ReactiveModel}
-hs_model = Stipple.init(CardDemo())
 
 function ui(model)
     [
