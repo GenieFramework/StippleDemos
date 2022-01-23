@@ -37,3 +37,4 @@ julia> down() # stop the running async instance of Genie Server
 | **Checkboxes**           | ![Form](docs/content/img/Checkboxes.png)   |
 | **FileUpload**           | ![Form](docs/content/img/FileUpload.png)   |
 | **ImageGallery**           | ![Form](docs/content/img/ImageGallery.png)   |
+| **BubbleCharts**           | ![Form](docs/content/img/BubbleCharts.png)   |
