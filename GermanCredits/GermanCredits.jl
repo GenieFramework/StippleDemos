@@ -31,7 +31,7 @@ data = CSV.File("data/german_credit.csv") |> DataFrame
   credit_data_pagination::DataTablePagination = DataTablePagination(rows_per_page=100)
   credit_data_loading::R{Bool} = false
 
-  range_data::R{RangeData{Int}} = RangeData(15:80)
+  range_data::R{RangeData{Int}} = RangeData(18:80)
 
   big_numbers_count_good_credits::R{Int} = 0
   big_numbers_count_bad_credits::R{Int} = 0
@@ -76,21 +76,18 @@ function barstats(data::DataFrame, model::M) where {M<:Stipple.ReactiveModel}
           data[(data.Age .∈ [x:x+10]) .& (data.Good_Rating .== false), [:Good_Rating]] |> nrow)
   end
 
-  @info age_stats
-  @info typeof(age_stats[:good_credit])
-  @info model.age_slots[]
-
   model.bar_plot_data[] =
   [PlotData(x = model.age_slots[],
           y = age_stats[:good_credit],
           name = "Good credit",
-          plot = StipplePlotly.Charts.PLOT_TYPE_BAR),
+          plot = StipplePlotly.Charts.PLOT_TYPE_BAR,
+          marker = PlotDataMarker(color = plot_colors[1])),
 
   PlotData(x = model.age_slots[],
           y = age_stats[:bad_credit],
           name = "Bad credit",
-          plot = StipplePlotly.Charts.PLOT_TYPE_BAR)
-  ]
+          plot = StipplePlotly.Charts.PLOT_TYPE_BAR,
+          marker = PlotDataMarker(color = plot_colors[2]))]
 end
 
 function bubblestats(data::DataFrame, model::M) where {M<:ReactiveModel}
@@ -103,13 +100,15 @@ function bubblestats(data::DataFrame, model::M) where {M<:ReactiveModel}
   model.bubble_plot_data[] = 
   [PlotData(x = credit_stats[:good_credit].Age,
            y = credit_stats[:good_credit].Amount,
+           name = "Good Credit",
            mode = "markers",
-           marker = PlotDataMarker(symbol="circle")),
+           marker = PlotDataMarker(size=18, opacity= 0.4, color = plot_colors[1], symbol="circle")),
 
   PlotData(x = credit_stats[:bad_credit].Age,
           y = credit_stats[:bad_credit].Amount,
+          name = "Bad Credit",
           mode = "markers",
-          marker = PlotDataMarker(symbol="cross"))]
+          marker = PlotDataMarker(size=18, color = plot_colors[2], symbol="cross"))]
 end
 
 function setmodel(data::DataFrame, model::M)::M where {M<:ReactiveModel}
@@ -144,8 +143,17 @@ end
 
 function ui(model)
   (
-  page(model, title="German Credits",
-            head_content = Genie.Assets.favicon_support(), partial = false,
+  page(model, 
+  title="German Credits", 
+  head_content = Genie.Assets.favicon_support(), 
+  partial = false,
+  prepend = style(
+    """
+    .modebar {
+      display: none!important;
+    }
+    """
+  ),
   [
     heading("German Credits by Age")
 
