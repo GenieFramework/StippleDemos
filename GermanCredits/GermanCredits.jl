@@ -48,8 +48,7 @@ data = CSV.File("data/german_credit.csv") |> DataFrame
   # bubble_plot_data::R{Vector{PlotSeries}} = []
   bubble_plot_data::R{Vector{PlotData}} = PlotData[]
 
-  title::PlotLayoutTitle = PlotLayoutTitle(text= "Marker Size")
-  bubble_layout::R{PlotLayout} = PlotLayout(title=title, showlegend = false, height = 720, width = 1080)
+  bubble_layout::R{PlotLayout} = PlotLayout(showlegend = false)
 end
 
 
