@@ -1,6 +1,6 @@
 using Stipple
 using StippleUI
-using StippleCharts
+using StipplePlotly
 
 using CSV, DataFrames, Dates
 
@@ -10,39 +10,30 @@ const data_opts = DataTableOptions(columns = [Column("Good_Rating"), Column("Amo
 
 const plot_colors = ["#72C8A9", "#BD5631"]
 
-# PlotOption is a Julia object defined in StippleCharts
-const bubble_plot_opts = PlotOptions(data_labels_enabled=false, fill_opacity=0.8, xaxis_tick_amount=10, chart_animations_enabled=false,
-                                      xaxis_max=80, xaxis_min=17, yaxis_max=20_000, chart_type=:bubble,
-                                      colors=plot_colors, plot_options_bubble_min_bubble_radius=4, chart_font_family="Lato, Helvetica, Arial, sans-serif")
-
-const bar_plot_opts = PlotOptions(xaxis_tick_amount=10, xaxis_max=350, chart_type=:bar, plot_options_bar_data_labels_position=:top,
-                                  plot_options_bar_horizontal=true, chart_height=200, colors=plot_colors, chart_animations_enabled=false,
-                                  xaxis_categories = ["20-30", "30-40", "40-50", "50-60", "60-70", "70-80"], chart_toolbar_show=false,
-                                  chart_font_family="Lato, Helvetica, Arial, sans-serif", stroke_show = false)
-
-
 # reading data from CSV file and contrucing data frame 
 cd(@__DIR__)
 data = CSV.File("data/german_credit.csv") |> DataFrame
 
 # Defining a Stipple ReactiveModel of type observable 
-Base.@kwdef mutable struct Dashboard1 <: ReactiveModel
+@reactive mutable struct Dashboard1 <: ReactiveModel
   credit_data::R{DataTable} = DataTable()
   credit_data_pagination::DataTablePagination = DataTablePagination(rows_per_page=100)
   credit_data_loading::R{Bool} = false
 
-  range_data::R{RangeData{Int}} = RangeData(15:80)
+  range_data::R{RangeData{Int}} = RangeData(18:80)
 
   big_numbers_count_good_credits::R{Int} = 0
   big_numbers_count_bad_credits::R{Int} = 0
   big_numbers_amount_good_credits::R{Int} = 0
   big_numbers_amount_bad_credits::R{Int} = 0
 
-  bar_plot_options::PlotOptions = bar_plot_opts
-  bar_plot_data::R{Vector{PlotSeries}} = []
+  age_slots::R{Vector{String}} = ["20-30", "30-40", "40-50", "50-60", "60-70", "70-80"]
+  bar_plot_data::R{Vector{PlotData}} = PlotData[]
+  bar_layout::R{PlotLayout} = PlotLayout(barmode= "group")
 
-  bubble_plot_options::PlotOptions = bubble_plot_opts
-  bubble_plot_data::R{Vector{PlotSeries}} = []
+  bubble_plot_data::R{Vector{PlotData}} = PlotData[]
+
+  bubble_layout::R{PlotLayout} = PlotLayout(showlegend = false)
 end
 
 
@@ -69,8 +60,18 @@ function barstats(data::DataFrame, model::M) where {M<:Stipple.ReactiveModel}
           data[(data.Age .∈ [x:x+10]) .& (data.Good_Rating .== false), [:Good_Rating]] |> nrow)
   end
 
-  model.bar_plot_data[] = [PlotSeries("Good credit", PlotData(age_stats[:good_credit])),
-                            PlotSeries("Bad credit", PlotData(age_stats[:bad_credit]))]
+  model.bar_plot_data[] =
+  [PlotData(x = model.age_slots[],
+          y = age_stats[:good_credit],
+          name = "Good credit",
+          plot = StipplePlotly.Charts.PLOT_TYPE_BAR,
+          marker = PlotDataMarker(color = plot_colors[1])),
+
+  PlotData(x = model.age_slots[],
+          y = age_stats[:bad_credit],
+          name = "Bad credit",
+          plot = StipplePlotly.Charts.PLOT_TYPE_BAR,
+          marker = PlotDataMarker(color = plot_colors[2]))]
 end
 
 function bubblestats(data::DataFrame, model::M) where {M<:ReactiveModel}
@@ -80,8 +81,18 @@ function bubblestats(data::DataFrame, model::M) where {M<:ReactiveModel}
   credit_stats[:good_credit] = data[data.Good_Rating .== true, selected_columns]
   credit_stats[:bad_credit] = data[data.Good_Rating .== false, selected_columns]
 
-  model.bubble_plot_data[] = [PlotSeries("Good credit", PlotData(credit_stats[:good_credit])),
-                              PlotSeries("Bad credit", PlotData(credit_stats[:bad_credit]))]
+  model.bubble_plot_data[] = 
+  [PlotData(x = credit_stats[:good_credit].Age,
+           y = credit_stats[:good_credit].Amount,
+           name = "Good Credit",
+           mode = "markers",
+           marker = PlotDataMarker(size=18, opacity= 0.4, color = plot_colors[1], symbol="circle")),
+
+  PlotData(x = credit_stats[:bad_credit].Age,
+          y = credit_stats[:bad_credit].Amount,
+          name = "Bad Credit",
+          mode = "markers",
+          marker = PlotDataMarker(size=18, color = plot_colors[2], symbol="cross"))]
 end
 
 function setmodel(data::DataFrame, model::M)::M where {M<:ReactiveModel}
@@ -96,10 +107,10 @@ end
 
 
 ### setting up vuejs and stipple connection with ReactiveModel
-Stipple.register_components(Dashboard1, StippleCharts.COMPONENTS)
+# Stipple.register_components(Dashboard1, StippleCharts.COMPONENTS)
 
 # Instantiating Reactive Model isntantace 
-gc_model = setmodel(data, Dashboard1()) |> Stipple.init
+gc_model = setmodel(data, Dashboard1()) |> init
 
 function filterdata(model::Dashboard1)
   model.credit_data_loading[] = true
@@ -109,10 +120,24 @@ function filterdata(model::Dashboard1)
   nothing
 end
 
+# handlers
+on(gc_model.range_data) do _
+  filterdata(gc_model)
+end
+
 function ui(model)
-  [
-  dashboard(vm(model), title="German Credits",
-            head_content = Genie.Assets.favicon_support(), partial = false,
+  (
+  page(model, 
+  title="German Credits", 
+  head_content = Genie.Assets.favicon_support(), 
+  partial = false,
+  prepend = style(
+    """
+    .modebar {
+      display: none!important;
+    }
+    """
+  ),
   [
     heading("German Credits by Age")
 
@@ -175,14 +200,14 @@ function ui(model)
       ])
       cell(class="st-module", [
         h4("Credits by age")
-        plot(:bar_plot_data; options=:bar_plot_options)
+        plot(:bar_plot_data; layout=:bar_layout, config = "{ displayLogo:false }")
       ])
     ])
 
     row([
       cell(class="st-module", [
         h4("Credits by age, amount and duration")
-        plot(:bubble_plot_data; options=:bubble_plot_options)
+        plot(:bubble_plot_data, layout=:bubble_layout, config = "{ displayLogo:false }")
       ])
     ])
 
@@ -192,12 +217,7 @@ function ui(model)
       ])
     ])
   ])
-  ]
-end
-
-# handlers
-on(gc_model.range_data) do _
-  filterdata(gc_model)
+  )
 end
 
 # serving on localhost
@@ -205,4 +225,4 @@ route("/") do
   ui(gc_model) |> html
 end
 
-up(rand((8000:9000)), open_browser=true)
+up()
