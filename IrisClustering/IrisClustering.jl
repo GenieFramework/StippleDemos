@@ -31,6 +31,7 @@ function plot_data(cluster_column::Symbol, ic_model::IrisModel)
   isempty(ic_model.xfeature[]) || isempty(ic_model.yfeature[]) && return plot_collection
   
   x_feature_collection, y_feature_collection = Vector{Float64}(), Vector{Float64}()
+  plot = PlotData()
 
   for species in Array(data[:, cluster_column]) |> unique!
     for r in eachrow(data[data[!, cluster_column] .== species, :])

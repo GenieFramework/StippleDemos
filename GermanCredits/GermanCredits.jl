@@ -10,17 +10,6 @@ const data_opts = DataTableOptions(columns = [Column("Good_Rating"), Column("Amo
 
 const plot_colors = ["#72C8A9", "#BD5631"]
 
-# PlotOption is a Julia object defined in StippleCharts
-# const bubble_plot_opts = PlotOptions(data_labels_enabled=false, fill_opacity=0.8, xaxis_tick_amount=10, chart_animations_enabled=false,
-#                                       xaxis_max=80, xaxis_min=17, yaxis_max=20_000, chart_type=:bubble,
-#                                       colors=plot_colors, plot_options_bubble_min_bubble_radius=4, chart_font_family="Lato, Helvetica, Arial, sans-serif")
-
-# const bar_plot_opts = PlotOptions(xaxis_tick_amount=10, xaxis_max=350, chart_type=:bar, plot_options_bar_data_labels_position=:top,
-#                                   plot_options_bar_horizontal=true, chart_height=200, colors=plot_colors, chart_animations_enabled=false,
-#                                   xaxis_categories = ["20-30", "30-40", "40-50", "50-60", "60-70", "70-80"], chart_toolbar_show=false,
-#                                   chart_font_family="Lato, Helvetica, Arial, sans-serif", stroke_show = false)
-
-
 # reading data from CSV file and contrucing data frame 
 cd(@__DIR__)
 data = CSV.File("data/german_credit.csv") |> DataFrame
@@ -38,14 +27,10 @@ data = CSV.File("data/german_credit.csv") |> DataFrame
   big_numbers_amount_good_credits::R{Int} = 0
   big_numbers_amount_bad_credits::R{Int} = 0
 
-  # bar_plot_options::PlotOptions = bar_plot_opts
-  # bar_plot_data::R{Vector{PlotSeries}} = []
   age_slots::R{Vector{String}} = ["20-30", "30-40", "40-50", "50-60", "60-70", "70-80"]
   bar_plot_data::R{Vector{PlotData}} = PlotData[]
   bar_layout::R{PlotLayout} = PlotLayout(barmode= "group")
 
-  # bubble_plot_options::PlotOptions = bubble_plot_opts
-  # bubble_plot_data::R{Vector{PlotSeries}} = []
   bubble_plot_data::R{Vector{PlotData}} = PlotData[]
 
   bubble_layout::R{PlotLayout} = PlotLayout(showlegend = false)
