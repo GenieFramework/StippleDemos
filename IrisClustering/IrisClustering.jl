@@ -29,9 +29,9 @@ end
 function plot_data(cluster_column::Symbol, ic_model::IrisModel)
   plot_collection = Vector{PlotData}()
   isempty(ic_model.xfeature[]) || isempty(ic_model.yfeature[]) && return plot_collection
+  
   for species in Array(data[:, cluster_column]) |> unique!
-    x_feature_collection = Vector{Float64}()
-    y_feature_collection = Vector{Float64}()
+    x_feature_collection, y_feature_collection = Vector{Float64}(), Vector{Float64}()
     for r in eachrow(data[data[!, cluster_column] .== species, :])
       push!(x_feature_collection, (r[Symbol(ic_model.xfeature[])]))
       push!(y_feature_collection, (r[Symbol(ic_model.yfeature[])]))
