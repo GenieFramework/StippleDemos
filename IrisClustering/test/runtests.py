@@ -5,8 +5,8 @@ with sync_playwright() as p:
   page = browser.new_page()
   page.goto("http://127.0.0.1:9000/")
   sliders = page.query_selector_all("_vue=QSlider")
-  sliders[0].click()
-  sliders[1].click()
+  # sliders[0].click()
+  # sliders[1].click()
 
   # print(type(sliders[0].getproperties()))
   # print(sliders[0].get_property("model"))
@@ -22,5 +22,14 @@ with sync_playwright() as p:
 
   menu = page.query_selector("_vue=QItem >> nth=2")
   menu.click()
+
+  aslider = page.locator("_vue=QSlider >> nth=0")
+  aslider.click()
+
+  value = aslider.evaluate("""myVueEnabledDOMElement => {
+    let elementVueInstance = myVueEnabledDOMElement.__vue__;
+    let checkedPropertyValue = elementVueInstance.counter;
+    return checkedPropertyValue == 5;
+  }""")
 
   browser.close()

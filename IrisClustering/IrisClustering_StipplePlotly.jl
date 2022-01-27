@@ -29,9 +29,9 @@ end
 function plot_data(cluster_column::Symbol, ic_model::IrisModel)
   plot_collection = Vector{PlotData}()
   isempty(ic_model.xfeature[]) || isempty(ic_model.yfeature[]) && return plot_collection
+  
   for species in Array(data[:, cluster_column]) |> unique!
-    x_feature_collection = Vector{Float64}()
-    y_feature_collection = Vector{Float64}()
+    x_feature_collection, y_feature_collection = Vector{Float64}(), Vector{Float64}()
     for r in eachrow(data[data[!, cluster_column] .== species, :])
       push!(x_feature_collection, (r[Symbol(ic_model.xfeature[])]))
       push!(y_feature_collection, (r[Symbol(ic_model.yfeature[])]))
@@ -71,17 +71,14 @@ function ui(model::IrisModel)
     tr:nth-child(even) {
       background: #F8F8F8 !important;
     }
-
     .modebar {
       display: none!important;
     }
-
     .st-module {
       background-color: #FFF;
       border-radius: 2px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.04);
     }
-
     .stipple-core .st-module > h5,
     .stipple-core .st-module > h6 {
       border-bottom: 0px !important;
