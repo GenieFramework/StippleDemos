@@ -28,8 +28,8 @@ with sync_playwright() as p:
 
   value = aslider.evaluate("""myVueEnabledDOMElement => {
     let elementVueInstance = myVueEnabledDOMElement.__vue__;
-    let checkedPropertyValue = elementVueInstance.counter;
-    return checkedPropertyValue == 5;
+    let checkedPropertyValue = elementVueInstance.value;
+    return checkedPropertyValue == 11;
   }""")
-
+  print(value)
   browser.close()
