@@ -80,9 +80,6 @@ function readpngdata(io)
     return a
 end
 
-# ffmpeg(f, cmd::Cmd; kwargs...) = ffmpeg(f ∘ (x->`$x $cmd`); kwargs...)
-# ffmpeg(cmd::Cmd; kwargs...) = ffmpeg(String ∘ read, cmd; kwargs...)
-
 start_camera(camera::Camera) = ffmpeg() do exe
     stop_camera(camera)
     device = string("video=", camera.camera)
@@ -113,7 +110,6 @@ end
     # refresh rate of the browser (not necessarily identical with the hardware refreshrate `camera.fps`)
     # this can be chosen a higher number than the hardware resfresh rate, e.g. 100, as the browser will skip frames
     # as long as the previous frame has not been transferred. Very high rates will decrease browser performance, though.
-    # There are 
     fps::R{Int} = 0 
 
     img::R{Vector{UInt8}} = Vector{UInt8}(), PRIVATE
@@ -139,11 +135,6 @@ Stipple.js_methods(model::WebCam) = """
         clearInterval(this.cameratimer);
     }
 """
-
-# no longer needed, now taken care of by `isready` in `handlers()`
-# Stipple.js_created(model::WebCam) = """
-#    if (this.cameraon) { this.startcamera() }
-# """
 
 Stipple.js_watch(model::WebCam) = """
     cameraon: function (newval, oldval) { 
