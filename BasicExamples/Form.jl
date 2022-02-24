@@ -31,7 +31,7 @@ myform() = xelem(:div, class = "q-pa-md", style = "max-width: 400px", [
         btn("Reset", type = "reset", color = "primary", :flat, class = "q-ml-sm")
       ]),
       p("Bad stuff's about {{object}} to happen", class = "warning", @recur(:"object in objects"))
-    ], action = "/", method = "POST", @on(:submit, "onSubmit"), @on(:reset, "onReset"), class = "q-gutter-md")
+    ], @on(:submit, "onSubmit"), @on(:reset, "onReset"), class = "q-gutter-md")
 ])
 
 import Stipple.js_methods
