@@ -1,49 +1,39 @@
-# this example was written by @hhaensel (see [here](https://github.com/GenieFramework/Stipple.jl/issues/57#issuecomment-862641950))
-
 using Stipple, StippleUI
 
-
-const NO = StippleUI.NO_WRAPPER # NO_WRAPPER is anonymous function f->f()
-
-# name, age are type Observable 
 @reactive mutable struct FormComponent <: ReactiveModel
-    name::R{String} = ""
-    age::R{Int} = 0
-    objects::R{Vector} = ["Dog", "Cat", "Beer"]
-    warin::R{Bool} = true
+  name::R{String} = ""
+  age::R{Int} = 0
+  objects::R{Vector} = ["Dog", "Cat", "Beer"]
+  warin::R{Bool} = true
 end
 
-# passing FormComponent object(contruction) for 2-way integration between Julia and JavaScript
-# returns {ReactiveModel}
 
-myform() = xelem(:div, class="q-pa-md", style="max-width: 400px", [
-    StippleUI.form([ # <form functioncall takes array of functioncalls <textfield>, <numberfield>, <toggle> & <div wrapping two buttons>
-        textfield("What's your name *", :client_name,
-            @iif(:warin),
-            :filled, # you can also mention it "filled" as string
-            hint="Name and surname",
-            "lazy-rules", # if not string you an use julia symbol lazy__rules notice - is replace by two underscores
-            rules = "[val => val && val.length > 0 || 'Please type something']"
-        ),
-        numberfield("Your age *", :client_age,
-            "filled",
-            :lazy__rules,
-            rules="""[
-                val => val !== null && val !== '' || 'Please type your age',
-                val => val > 0 && val < 100 || 'Please type a real age'
-            ]""" # use """ """ or " " rules contain valid javascript rule
-        ),
-        toggle("I accept the license and terms", :accept, wrap=NO),
-        Stipple.Html.div([
-            btn("Submit", type="submit", color="primary", wrap=NO)
-            btn("Reset", type="reset", color="primary", :flat, class="q-ml-sm", wrap=NO)
-        ]),
-        p("Bad stuff's about {{object}} to happen", class="warning", @recur(:"object in objects"))
-    ], @on(:submit, "onSubmit"), @on(:reset, "onReset"), class="q-gutter-md", wrap=NO)  # defined vuejs v-on :submit is binded to onSubmit() javascript function defined below
-])   # @on macro is a mapping to vuejs's v-on ...like wise @showif is mapped to v-show
-# v-model is @bind 
+myform() = xelem(:div, class = "q-pa-md", style = "max-width: 400px", [
+  StippleUI.form([
+      textfield("What's your name *", :client_name,
+        @iif(:warin),
+        :filled,
+        hint = "Name and surname",
+        "lazy-rules",
+        rules = "[val => val && val.length > 0 || 'Please type something']"
+      ),
+      numberfield("Your age *", :client_age,
+        "filled",
+        :lazy__rules,
+        rules = """[
+              val => val !== null && val !== '' || 'Please type your age',
+              val => val > 0 && val < 100 || 'Please type a real age'
+          ]"""
+      ),
+      toggle("I accept the license and terms", :accept),
+      Stipple.Html.div([
+        btn("Submit", type = "submit", color = "primary")
+        btn("Reset", type = "reset", color = "primary", :flat, class = "q-ml-sm")
+      ]),
+      p("Bad stuff's about {{object}} to happen", class = "warning", @recur(:"object in objects"))
+    ], action = "/", method = "POST", @on(:submit, "onSubmit"), @on(:reset, "onReset"), class = "q-gutter-md")
+])
 
-# defines javascript code block without interpolation and unescaping
 import Stipple.js_methods
 js_methods(m::FormComponent) = raw"""
     onSubmit () {
@@ -79,15 +69,14 @@ import Stipple.client_data
 client_data(m::FormComponent) = client_data(client_name = js"null", client_age = js"null", accept = false)
 
 function ui(model)
-    page(model, class="container", title="Hello Stipple", 
-        myform()
-    )
+  page(model, class = "container", title = "Hello Stipple",
+    myform()
+  )
 end
 
 # Using Genie Route to serve ui
-route("/") do 
-  hs_model = FormComponent |> init
-  ui(hs_model)
+route("/") do
+  hs_model = FormComponent |> init |> ui
 end
 
 up()
