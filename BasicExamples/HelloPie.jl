@@ -1,7 +1,7 @@
 using Stipple
 using StippleCharts
 
-Base.@kwdef mutable struct HelloPie <: ReactiveModel
+@reactive mutable struct HelloPie <: ReactiveModel
   plot_options::R{PlotOptions} = PlotOptions(chart_type=:pie, chart_width=380, chart_animations_enabled=true,
                                             stroke_show = false, labels=["Slice A", "Slice B"])
   piechart_::R{Vector} = Any[44, 55]
