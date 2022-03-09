@@ -32,7 +32,7 @@ end
 function ui()
   [
     page(
-      vm(hs_model), class="container", title="Hello Pie", partial=true,
+      hs_model, class="container", title="Hello Pie", partial=true,
       [
         row(
           cell([
