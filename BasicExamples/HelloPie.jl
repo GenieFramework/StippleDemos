@@ -59,3 +59,5 @@ end
 route("/") do 
   HelloPie |> init |> ui |> html
 end
+
+up()
