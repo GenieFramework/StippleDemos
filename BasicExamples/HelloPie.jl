@@ -10,29 +10,28 @@ end
 
 Stipple.register_components(HelloPie, StippleCharts.COMPONENTS)
 
-hs_model = Stipple.init(HelloPie)
-
-on(hs_model.values) do _
-  hs_model.piechart_[] = Any[tryparse(Int, strip(x)) for x in split(hs_model.values[], ',')]
-
-  po = hs_model.plot_options[]
-  po.labels = ["Slice $x" for x in ( collect('A':'Z')[1:length(hs_model.piechart_[])] )]
-
-  while length(hs_model.piechart_[]) > length(po.colors)
-    push!(po.colors, string('#', random_color(), random_color(), random_color()))
-  end
-
-  hs_model.plot_options[] = po
-end
-
 function random_color() :: String
   string(rand(0:255), base = 16) |> uppercase
 end
 
-function ui()
+function ui(model)
+  on(model.values) do _
+    model.piechart_[] = Any[tryparse(Int, strip(x)) for x in split(model.values[], ',')]
+  
+    po = model.plot_options[]
+    po.labels = ["Slice $x" for x in ( collect('A':'Z')[1:length(model.piechart_[])] )]
+  
+    while length(model.piechart_[]) > length(po.colors)
+      push!(po.colors, string('#', random_color(), random_color(), random_color()))
+    end
+  
+    model.plot_options[] = po
+  end
+
+
   [
     page(
-      hs_model, class="container", title="Hello Pie", partial=true,
+      model, class="container", title="Hello Pie", partial=true,
       [
         row(
           cell([
@@ -57,4 +56,7 @@ function ui()
   ] |> html
 end
 
-route("/", ui)
+route("/") do 
+  model = init(HelloPie)
+  ui(model)
+end
