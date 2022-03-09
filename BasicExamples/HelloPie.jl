@@ -10,7 +10,7 @@ end
 
 Stipple.register_components(HelloPie, StippleCharts.COMPONENTS)
 
-hs_model = Stipple.init(HelloPie())
+hs_model = Stipple.init(HelloPie)
 
 on(hs_model.values) do _
   hs_model.piechart_[] = Any[tryparse(Int, strip(x)) for x in split(hs_model.values[], ',')]
