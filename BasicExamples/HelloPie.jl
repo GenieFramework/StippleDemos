@@ -53,10 +53,9 @@ function ui(model)
         )
       ]
     )
-  ] |> html
+  ]
 end
 
 route("/") do 
-  model = init(HelloPie)
-  ui(model)
+  HelloPie |> init |> ui |> html
 end
