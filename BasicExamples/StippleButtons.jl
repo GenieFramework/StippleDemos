@@ -14,31 +14,32 @@ end
 
 function ui(model::SBModel)
   [
-  dashboard(
-    vm(model), class="container", title="Buttons demo",
-    [
-      heading("Buttons")
-
-      row([
-        cell([
-          btn("Less! ", @click("value -= 1"))
-        ])
-        cell([
-          p([
-              "Clicks: "
-              span(model.clicks, @text(:clicks))
-          ])
-          p([
-            "Value: "
-            span(model.value, @text(:value))
-          ])
-        ])
-        cell([
-          btn("More! ", @click("value += 1"))
-        ])
-      ])
-    ]
-  )
+    dashboard(
+      vm(model),
+      class = "container",
+      title = "Buttons demo",
+      [
+        heading("Buttons")
+        row(
+          [
+            cell([btn("Less! ", @click("value -= 1"))])
+            cell(
+              [
+                p([
+                  "Clicks: "
+                  span(model.clicks, @text(:clicks))
+                ])
+                p([
+                  "Value: "
+                  span(model.value, @text(:value))
+                ])
+              ],
+            )
+            cell([btn("More! ", @click("value += 1"))])
+          ],
+        )
+      ],
+    ),
   ]
 end
 
@@ -46,4 +47,4 @@ route("/") do
   ui(sb_model) |> html
 end
 
-up(rand((8000:9000)), open_browser=true)
+up(rand((8000:9000)), open_browser = true)

@@ -1,7 +1,9 @@
 using Stipple, StippleUI
 
-Genie.Assets.assets_config!([Genie, Stipple, StippleUI],
-                            host = "https://cdn.statically.io/gh/GenieFramework")
+Genie.Assets.assets_config!(
+  [Genie, Stipple, StippleUI],
+  host = "https://cdn.statically.io/gh/GenieFramework",
+)
 
 WEB_TRANSPORT = Genie.WebChannels #Genie.WebThreads #
 
@@ -22,21 +24,22 @@ end
 
 function ui()
   [
-  page(
-    vm(rt_model), class="container", title="Reverse text", [
-      p([
-        "Input "
-        input("", @bind(:input), @on("keyup.enter", "process = true"))
-      ])
-      p(
-        button("Reverse", @click("process = true"))
-      )
-      p([
-        "Output: "
-        span("", @text(:output))
-      ])
-    ]
-  )
+    page(
+      vm(rt_model),
+      class = "container",
+      title = "Reverse text",
+      [
+        p([
+          "Input "
+          input("", @bind(:input), @on("keyup.enter", "process = true"))
+        ])
+        p(button("Reverse", @click("process = true")))
+        p([
+          "Output: "
+          span("", @text(:output))
+        ])
+      ],
+    ),
   ] |> html
 end
 

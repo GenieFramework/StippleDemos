@@ -16,17 +16,21 @@ function ui(model)
   end
 
   [
-    page(model, title="Hello Stipple", [
-      h1([
-        "Hello, "
-        span([], @text(:name))
-      ])
-
-      p([
-        "What is your name? "
-        input("", placeholder="Type your name", @bind(:name))
-      ])
-    ], @iif(:isready))
+    page(
+      model,
+      title = "Hello Stipple",
+      [
+        h1([
+          "Hello, "
+          span([], @text(:name))
+        ])
+        p([
+          "What is your name? "
+          input("", placeholder = "Type your name", @bind(:name))
+        ])
+      ],
+      @iif(:isready)
+    ),
   ]
 end
 

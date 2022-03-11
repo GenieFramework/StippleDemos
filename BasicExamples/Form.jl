@@ -7,32 +7,51 @@ using Stipple, StippleUI
   warin::R{Bool} = true
 end
 
-
-myform() = xelem(:div, class = "q-pa-md", style = "max-width: 400px", [
-  StippleUI.form([
-      textfield("What's your name *", :client_name,
-        @iif(:warin),
-        :filled,
-        hint = "Name and surname",
-        "lazy-rules",
-        rules = "[val => val && val.length > 0 || 'Please type something']"
-      ),
-      numberfield("Your age *", :client_age,
-        "filled",
-        :lazy__rules,
-        rules = """[
-              val => val !== null && val !== '' || 'Please type your age',
-              val => val > 0 && val < 100 || 'Please type a real age'
-          ]"""
-      ),
-      toggle("I accept the license and terms", :accept),
-      Stipple.Html.div([
-        btn("Submit", type = "submit", color = "primary")
-        btn("Reset", type = "reset", color = "primary", :flat, class = "q-ml-sm")
-      ]),
-      p("Bad stuff's about {{object}} to happen", class = "warning", @recur(:"object in objects"))
-    ], @on(:submit, "onSubmit"), @on(:reset, "onReset"), class = "q-gutter-md")
-])
+myform() = xelem(
+  :div,
+  class = "q-pa-md",
+  style = "max-width: 400px",
+  [
+    StippleUI.form(
+      [
+        textfield(
+          "What's your name *",
+          :client_name,
+          @iif(:warin),
+          :filled,
+          hint = "Name and surname",
+          "lazy-rules",
+          rules = "[val => val && val.length > 0 || 'Please type something']",
+        ),
+        numberfield(
+          "Your age *",
+          :client_age,
+          "filled",
+          :lazy__rules,
+          rules = """[
+                val => val !== null && val !== '' || 'Please type your age',
+                val => val > 0 && val < 100 || 'Please type a real age'
+            ]""",
+        ),
+        toggle("I accept the license and terms", :accept),
+        Stipple.Html.div(
+          [
+            btn("Submit", type = "submit", color = "primary")
+            btn("Reset", type = "reset", color = "primary", :flat, class = "q-ml-sm")
+          ],
+        ),
+        p(
+          "Bad stuff's about {{object}} to happen",
+          class = "warning",
+          @recur(:"object in objects")
+        ),
+      ],
+      @on(:submit, "onSubmit"),
+      @on(:reset, "onReset"),
+      class = "q-gutter-md",
+    ),
+  ],
+)
 
 import Stipple.js_methods
 js_methods(m::FormComponent) = raw"""
@@ -66,12 +85,11 @@ js_methods(m::FormComponent) = raw"""
   """
 
 import Stipple.client_data
-client_data(m::FormComponent) = client_data(client_name = js"null", client_age = js"null", accept = false)
+client_data(m::FormComponent) =
+  client_data(client_name = js"null", client_age = js"null", accept = false)
 
 function ui(model)
-  page(model, class = "container", title = "Hello Stipple",
-    myform()
-  )
+  page(model, class = "container", title = "Hello Stipple", myform())
 end
 
 # Using Genie Route to serve ui

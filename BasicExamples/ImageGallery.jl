@@ -20,38 +20,53 @@ end
 end
 
 function ui(model)
-  page(model, partial=true, [
-    heading("Image Gallery")
-
-    row([
-      div(class="q-pa-md",[
-        btn(color="teal", label="Change image", click!! = "refresh=true", class="q-mb-md")
-
-        div(class="q-gutter-sm row items-start",[
-          imageview(
-            src=:url, 
-            spinnercolor="white",
-            style="height: 140px; max-width: 150px")
-
-          imageview(
-            src=:url,
-            spinnercolor="primary",
-            spinnersize="82px",
-            style="height: 140px; max-width: 150px")
-
-          imageview(
-            src=:url,
-            style="height: 140px; max-width: 150px",
-            [
-              template("", "v-slot:loading", [
-                spinner(:gears, color="white", wrap = StippleUI.NO_WRAPPER)
-              ])
-            ]
-          )
-        ])
+  page(
+    model,
+    partial = true,
+    [
+      heading("Image Gallery")
+      row([
+        div(
+          class = "q-pa-md",
+          [
+            btn(
+              color = "teal",
+              label = "Change image",
+              click!! = "refresh=true",
+              class = "q-mb-md",
+            )
+            div(
+              class = "q-gutter-sm row items-start",
+              [
+                imageview(
+                  src = :url,
+                  spinnercolor = "white",
+                  style = "height: 140px; max-width: 150px",
+                )
+                imageview(
+                  src = :url,
+                  spinnercolor = "primary",
+                  spinnersize = "82px",
+                  style = "height: 140px; max-width: 150px",
+                )
+                imageview(
+                  src = :url,
+                  style = "height: 140px; max-width: 150px",
+                  [
+                    template(
+                      "",
+                      "v-slot:loading",
+                      [spinner(:gears, color = "white", wrap = StippleUI.NO_WRAPPER)],
+                    ),
+                  ],
+                )
+              ],
+            )
+          ],
+        ),
       ])
-    ])
-  ])
+    ],
+  )
 end
 
 route("/") do
