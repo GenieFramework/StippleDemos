@@ -1,5 +1,6 @@
 [deps]
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
 StippleCharts = "30ddb3f0-912f-4f34-9804-e4bb31290777"
