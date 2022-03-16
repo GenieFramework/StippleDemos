@@ -56,7 +56,9 @@ model = init(Test, debounce = 0) |> handlers
 
 function ui(model)
     page(model, class = "container", row(cell(class = "st-module", row([
-        editor(:s_editor, toolbar = :mytoolbar, definitions = :mydef, font = :myfont)
+        cell(editor(:s_editor, toolbar = :mytoolbar, definitions = :mydef, font = :myfont,
+            max__height = "50vh"
+        ))
     ]))), @iif(:isready)) |> html
 end
 
