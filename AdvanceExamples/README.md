@@ -10,7 +10,7 @@ julia> #enter package mode with ]
 julia> include("Stipple2048.jl")
 # should open your default browser and fire up Genie server at port between `8000:9000`
 ```
-![Form](docs/content/img/Card.png)
+![Form](docs/content/img/Stipple2048.png)
 ```julia
 julia> down() # stop the running async instance of Genie Server
 ```
