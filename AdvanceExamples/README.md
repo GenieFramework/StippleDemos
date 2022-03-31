@@ -7,7 +7,10 @@ julia> #enter package mode with ]
 (@v1.x) pkg> activate .
 (@v1.x) pkg> instantiate
 (@v1.x) pkg> #exit package mode with <backspace key>
-julia> include("MultiUserApp.jl")
-julia> up(open_browser=true)  # should open your default browser and fire up Genie server at port between `8000:9000`
+julia> include("Stipple2048.jl")
+# should open your default browser and fire up Genie server at port between `8000:9000`
+```
+![Form](docs/content/img/Card.png)
+```julia
 julia> down() # stop the running async instance of Genie Server
 ```

@@ -1,26 +1,17 @@
-# using Revise
-# using OffsetArrays
-
 cd(@__DIR__)
-using Game2048Core
-using Stipple, StippleUI
-using Colors
-using Random
+using Pkg
+pkg"activate ."
 
-import Stipple: OptDict, opts
-import StippleUI.dialog
+using Game2048Core
+using Stipple
+using StippleUI
+
+import Stipple: js_methods, js_created
 
 const G = Game2048Core
 const mydiv = Genie.Renderer.Html.div
 
-
-colors = ["#ff4119", "#41cc19", "#4119ff", "#ff19ff"]
-colors = ["#4119ff", "#41cc19", "#f7d038", "#ff4119", "#ff19ff"]
 colors = ["#4355db", "#34bbe6", "#49da9a", "#a3e048", "#f7d038", "#eb7532", "#e6261f"]
-
-color.(colors)
-
-
 
 css() = style(media="screen","""
     .board {
@@ -34,7 +25,7 @@ css() = style(media="screen","""
       width: 24% !important;
       height: 24% !important;
       border-radius: 2%;
-      background-color: #FF4119ff;
+      background-color: #ff4119ff;
       box-shadow: -0.3em 0.2em 1.5em 0.2em #ff4119ff;
       transition: all 0.5s ease-in-out;
     }
@@ -84,15 +75,11 @@ function handlers(model)
     model
 end
 
-Stipple.js_created(::G2048) = """
+js_created(::G2048) = """
 	window.addEventListener('keydown', this.keydown);
 """
 
-# js_destroyed(::G2048) """
-# 	window.removeEventListener('keydown', this.keydown);
-# """
-
-Stipple.js_methods(m::G2048) = """
+js_methods(::G2048) = """
 	keydown: function(e) {
 		this.key = e.keyCode
 	}
@@ -117,7 +104,7 @@ end
 
 import Game2048Core.move!
 
-function move!(model::ReactiveModel, dir::G.Dirs)
+function move!(model::G2048, dir::Dirs)
     newboard = move(model.bitboard[], dir)
     newboard == model.bitboard[] && return
 
@@ -133,11 +120,11 @@ end
 
 function keyhandler(model, key)
     if 37 <= key <= 40
-        move!(model, G.Dirs(key - 37))
+        move!(model, Dirs(key - 37))
     elseif lowercase(Char(key)) == 'r'
         undo(model)
     else
-        println(key)
+        println("Key down: $key")
     end
 end 
 
@@ -158,8 +145,7 @@ function ui(model)
             ) for i = 1:4, j = 1:4]...,
 
         ]))
-    ])), title = "Stipple 2048") * link(href="/iconsets/@mdi/font/css/materialdesignicons.min.css", rel="stylesheet", type="text/css")
-    # link(href="https://cdn.jsdelivr.net/npm/@mdi/font@^5.0.0/css/materialdesignicons.min.css", rel="stylesheet", type="text/css")
+    ])), title = "Stipple 2048")
 end
 
 route("/") do 

@@ -4,6 +4,11 @@
 # If you open two instances of the app in the same browser, you will see that they synchronise,
 # whereas an instance in a different browser will keep its own values.
 
+cd(@__DIR__)
+using Pkg
+pkg"activate ."
+
+
 using Stipple
 using StippleCharts
 using StippleUI
@@ -70,11 +75,11 @@ const xx = Base.range(0, 4π, length=200) |> collect
     plot_options::R{OptDict} = plot_options, JSFUNCTION
 end
 
-Stipple.register_components(MyDashboard, StippleCharts.COMPONENTS)
+# Stipple.register_components(MyDashboard, StippleCharts.COMPONENTS)
 
 models = Dict{String, ReactiveModel}()
 
-function model(channel)
+function getmodel(channel)
     if haskey(models, channel)
         models[channel]
     else
@@ -96,7 +101,7 @@ end
 
 function ui(user_id)
         CSS *
-        page(model(user_id), class="container", [
+        page(getmodel(user_id), class="container", [
 
         heading("Demo Stipple App with multi-user and multi-client support (user $user_id)")
 
@@ -140,4 +145,4 @@ route("/session/:sid") do
     params(:sid) |> ui |> html
 end
 
-up(8500)
+Stipple.up()
