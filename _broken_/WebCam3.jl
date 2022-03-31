@@ -174,7 +174,7 @@ end
 # kill(model.cam_process__[])
 
 function ui(model)
-    dashboard(model, [      
+    page(model, [      
             p(quasar(:img, "", src=:image, :basic, style="
                 -webkit-app-region: drag;
                 border-radius: 50%;
