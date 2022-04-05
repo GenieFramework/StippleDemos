@@ -19,6 +19,6 @@ Current Advanced Examples:
 | Name                      | Features                                   | Screenshot                              |
 |---------------------------|--------------------------------------------|-----------------------------------------|
 | **Stipple2048.jl**        | Stipple Implementation of the Game 2048<br>key handling, advanced ui | ![Form](docs/content/img/Stipple2048.png)         |
-| **Stipple2048_animated.jl**        | Animated Stipple Implementation of the Game 2048<br>key handling, animations, advanced ui | ![Form](docs/content/img/Stipple2048_animated.png)         |
+| **Stipple2048_animated.jl**        | Animated Stipple Implementation of the Game 2048<br>key handling, animations, advanced ui | ![Form](docs/content/img/Stipple2048_animated.jpg)         |
 | **ServerSideFiltering.jl**| Select with server-side filtering of options<br>select, js_methods               | ![Form](docs/content/img/ServerSideFiltering.jpg) |
 | **CameraWidget.jl**    | Circular resizable camera widget<br>webcam, js_methods, Electron browser         | ![Form](docs/content/img/CameraWidget.jpg) |
