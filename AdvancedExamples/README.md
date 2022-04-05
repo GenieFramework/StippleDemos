@@ -18,7 +18,5 @@ Current Advanced Examples:
 
 | Name                     | Features                                 | Screenshot                              |
 |--------------------------|--------------------------------------------|--------------------------------------|
-| **Stipple2048.jl**     | Stipple Implementation of the Game 2048 | ![Form](docs/content/img/Stipple2048.png) |
-| |key handling, animations, advanced ui | |
-| **ServerSideFiltering.jl**| Select with server-side filtering of options  | ![Form](docs/content/img/ServerSideFiltering.js)           |
-| |select, js_methods | |
+| **Stipple2048.jl**     | Stipple Implementation of the Game 2048<br>key handling, animations, advanced ui | ![Form](docs/content/img/Stipple2048.png) |
+| **ServerSideFiltering.jl**| Select with server-side filtering of options<br>select, js_methods  | ![Form](docs/content/img/ServerSideFiltering.jpg)           |
