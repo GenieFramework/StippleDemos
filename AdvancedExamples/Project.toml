@@ -1,9 +1,14 @@
 [deps]
+Electron = "a1bb12fb-d4d1-54b4-b10a-ee7951ef7ad3"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 Game2048Core = "449ebaaf-06bc-4dda-9a3f-b1c40666d086"
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
 StippleCharts = "30ddb3f0-912f-4f34-9804-e4bb31290777"
 StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 
 [compat]
 Genie = "4"

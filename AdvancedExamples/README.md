@@ -14,3 +14,11 @@ julia> include("Stipple2048.jl")
 ```julia
 julia> down() # stop the running async instance of Genie Server
 ```
+Current Advanced Examples:
+
+| Name                     | Features                                 | Screenshot                              |
+|--------------------------|--------------------------------------------|--------------------------------------|
+| **Stipple2048.jl**     | Stipple Implementation of the Game 2048 | ![Form](docs/content/img/Stipple2048.png) |
+| |key handling, animations, advanced ui | |
+| **ServerSideFiltering.jl**| Select with server-side filtering of options  | ![Form](docs/content/img/ServerSideFiltering.js)           |
+| |select, js_methods | |
