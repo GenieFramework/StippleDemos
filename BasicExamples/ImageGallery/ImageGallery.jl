@@ -56,7 +56,7 @@ function ui(model)
                     template(
                       "",
                       "v-slot:loading",
-                      [spinner(:gears, color = "white", wrap = StippleUI.NO_WRAPPER)],
+                      [spinner(:gears, color = "white")],
                     ),
                   ],
                 )

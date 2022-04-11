@@ -1,5 +1,5 @@
-using Stipple
-using StippleUI
+using Stipple, StippleUI
+using OffsetArrays
 
 @reactive! mutable struct Model <: ReactiveModel
     valone::R{Bool} = false

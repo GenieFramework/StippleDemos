@@ -1,0 +1,8 @@
+[deps]
+Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StipplePlotly = "ec984513-233d-481d-95b0-a3b58b97af2b"
+
+[compat]
+StipplePlotly = "0.10"
+Stipple = "0.20 - 0.22"
+julia = "1.6"

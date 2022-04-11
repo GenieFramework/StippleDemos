@@ -1,0 +1,9 @@
+[deps]
+Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StippleCharts = "30ddb3f0-912f-4f34-9804-e4bb31290777"
+StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+
+[compat]
+Stipple  = "0.20.5"
+StippleCharts =  "0.17.0"
+StippleUI = "0.17.0"

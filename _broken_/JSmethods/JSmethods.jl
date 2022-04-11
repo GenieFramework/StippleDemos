@@ -6,7 +6,7 @@ end
 
 function restart()
   global hs_model
-  hs_model = Stipple.init(JSmethods(), debounce = 1)
+  hs_model = JSmethods |> init
   on(println, hs_model.x)
 end
 
