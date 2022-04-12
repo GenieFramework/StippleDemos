@@ -132,6 +132,51 @@ end
 
 import Game2048Core.move!
 
+function newpositions(v::Vector)
+    vnew = v[v .> 0]
+    ii  = findall(v .> 0)
+    ii_new = collect(1:length(vnew))
+    ii_vis = fill(true, length(vnew))
+    n = 2
+    while n <= length(vnew)
+        if vnew[n] == vnew[n - 1]
+            ii_new[n:end] .-= 1
+            ii_vis[n] = false
+            n += 1
+        end
+        n += 1
+    end
+    zip(ii, ii_new, ii_vis)
+end
+
+function newpositions(m::Matrix, dir::Dirs)
+    trans = dir == G.left || dir == G.right
+    rev = dir == G.down || dir == G.right
+    trans && (m = m')
+    rev && (m = reverse(m, dims = 1))
+    pos = fill((0, 0), size(m)...)
+    vis = fill(false, size(m)...)
+
+    for j in 1:size(m, 2)
+        for (i, i_new, i_vis) in newpositions(m[:, j])
+            pos[i, j] = (rev ? size(m, 1) + 1 - i_new : i_new, j)
+            trans && (pos[i, j] = reverse(pos[i, j]))
+            vis[i, j] = i_vis
+        end
+    end
+
+    if rev
+        reverse!(pos, dims = 1)
+        reverse!(vis, dims = 1)
+    end
+    if trans
+        pos = permutedims(pos)
+        vis = permutedims(vis)
+    end
+
+    pos, vis
+end
+
 function move!(model::G2048, dir::Dirs)
     newboard = move(model.bitboard[], dir)
     newboard == model.bitboard[] && return
@@ -169,6 +214,17 @@ function move!(model::G2048, dir::Dirs)
     t.show = true
     
     animate_board(model)
+end
+
+function replay()
+    g = G2048()
+    model.lastboard[] = g.lastboard[]
+    model.tiles[] .= g.tiles[]
+    model.score[] = g.score[]
+    for t in model.tiles[]
+        G.bitboard_to_array(g.bitboard[])[t.i, t.j] == 0 && (t.i = t.j = 0; t.text = "")
+    end
+    model.bitboard[] = g.bitboard[]
 end
 
 function undo(model)
@@ -226,71 +282,4 @@ end
 
 restart()
 
-Genie.up(open_browser = false)
-
-function newpositions(v::Vector)
-    vnew = v[v .> 0]
-    ii  = findall(v .> 0)
-    ii_new = collect(1:length(vnew))
-    ii_vis = fill(true, length(vnew))
-    n = 2
-    while n <= length(vnew)
-        if vnew[n] == vnew[n - 1]
-            ii_new[n:end] .-= 1
-            ii_vis[n] = false
-            n += 1
-        end
-        n += 1
-    end
-    zip(ii, ii_new, ii_vis)
-end
-
-
-function newpositions(m::Matrix, dir::Dirs)
-    trans = dir == G.left || dir == G.right
-    rev = dir == G.down || dir == G.right
-    trans && (m = m')
-    rev && (m = reverse(m, dims = 1))
-    pos = fill((0, 0), size(m)...)
-    vis = fill(false, size(m)...)
-
-    for j in 1:size(m, 2)
-        for (i, i_new, i_vis) in newpositions(m[:, j])
-            pos[i, j] = (rev ? size(m, 1) + 1 - i_new : i_new, j)
-            trans && (pos[i, j] = reverse(pos[i, j]))
-            vis[i, j] = i_vis
-        end
-    end
-
-    if rev
-        reverse!(pos, dims = 1)
-        reverse!(vis, dims = 1)
-    end
-    if trans
-        pos = permutedims(pos)
-        vis = permutedims(vis)
-    end
-
-    pos, vis
-end
-
-v = [1, 2, 2, 0, 2, 5]
-m = hcat(v, v .+ 1 , v .+ 2)
-
-newpositions(v)
-
-newpositions(m, G.up)
-newpositions(m, G.down)
-newpositions(m, G.left)
-newpositions(m, G.right)
-
-function replay()
-    g = G2048()
-    model.lastboard[] = g.lastboard[]
-    model.tiles[] .= g.tiles[]
-    model.score[] = g.score[]
-    for t in model.tiles[]
-        G.bitboard_to_array(g.bitboard[])[t.i, t.j] == 0 && (t.i = t.j = 0; t.text = "")
-    end
-    model.bitboard[] = g.bitboard[]
-end
+Genie.up(open_browser = true)
