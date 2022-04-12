@@ -23,7 +23,7 @@ js_methods(::Example) = """
         })
     },
 
-    abortFilterFn () {
+    filterAbortFn () {
         console.log('Filtering aborted!')
     }
 """
