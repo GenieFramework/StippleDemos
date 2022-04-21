@@ -28,5 +28,6 @@ julia> down() # stop the running async instance of Genie Server
 
 | Components              | Demo                               |
 |-------------------------|------------------------------------|
+| **Plot3d**       | ![Plot](docs/content/img/152349703-0038c536-4077-45ce-9ee7-c38837e9f4a7.gif) |
 | **PlotData**      | ![Form](docs/content/img/PlotData.png)  |
 | **SubPlots 2x2**| ![Form](docs/content/img/MixedSubplots.png) |
