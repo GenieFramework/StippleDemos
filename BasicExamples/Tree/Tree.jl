@@ -1,5 +1,3 @@
-module Tree
-
 using Stipple, StippleUI
 using OrderedCollections
 
@@ -56,5 +54,3 @@ route("/") do
 end
 
 up()
-
-end # module
