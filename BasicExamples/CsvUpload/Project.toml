@@ -2,3 +2,8 @@
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
 Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
 StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+
+[compat]
+Stipple = "0.20 - 0.22"
+StippleUI = "0.17"
+julia = "1.6"
