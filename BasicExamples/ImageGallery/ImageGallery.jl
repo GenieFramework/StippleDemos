@@ -27,7 +27,7 @@ function ui(model)
       heading("Image Gallery")
       row([
         div(
-          class = "q-pa-md",
+          class = "q-pa-md col",
           [
             btn(
               color = "teal",
