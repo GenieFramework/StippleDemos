@@ -25,6 +25,7 @@ This repository includes a collection of Stipple demo application. Uses [Stipple
 ## AdvancedExamples
   - Using Custom CSS for syling
   - Using WebCAM to capture frame
+  - Using Contour Plot and animation for heat transfer simulation 
 
 ## Iris Cluture Project
 
