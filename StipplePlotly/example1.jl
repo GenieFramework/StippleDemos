@@ -21,7 +21,7 @@ pd(name) = PlotData(
 
 #== reactive model ==#
 
-Base.@kwdef mutable struct Model <: ReactiveModel
+@reactive! mutable struct Model <: ReactiveModel
   data::R{Vector{PlotData}} = [pd("Random 1"),pd("Random 2")]
   layout::R{PlotLayout} = PlotLayout(
       plot_bgcolor = "#333",
@@ -30,13 +30,14 @@ Base.@kwdef mutable struct Model <: ReactiveModel
   config::R{PlotConfig} = PlotConfig()
 end
 
-const model = Stipple.init(Model())
+
+model = Model |> init
 
 #== ui ==#
 
 function ui(model)
-  page(
-    vm(model), class="container", [
+  page(model,
+    class="container", [
       heading("Plotly example")
 
       row([
@@ -52,7 +53,7 @@ end
 #== server ==#
 
 route("/") do
-  ui(model) |> html
+  Stipple.init(Model) |> ui |> html
 end
 
-up(server = Stipple.bootstrap())
+up()
