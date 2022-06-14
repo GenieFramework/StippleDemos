@@ -1,6 +1,4 @@
-using Genie, Genie.Renderer.Html, Stipple, StipplePlotly
-
-Genie.config.log_requests = false
+using Stipple, StipplePlotly
 
 pd(name) = PlotData(
   x = ["Jan2019", "Feb2019", "Mar2019", "Apr2019", "May2019",
@@ -11,7 +9,7 @@ pd(name) = PlotData(
   name = name
 )
 
-Base.@kwdef mutable struct Model <: ReactiveModel
+@reactive! mutable struct Model <: ReactiveModel
   data::R{Vector{PlotData}} = [pd("Random 1"),pd("Random 2")]
   layout::R{PlotLayout} = PlotLayout(
       plot_bgcolor = "#333",
@@ -20,16 +18,15 @@ Base.@kwdef mutable struct Model <: ReactiveModel
   config::R{PlotConfig} = PlotConfig()
 end
 
-model = Stipple.init(Model())
-
-function ui()
-  page(
-    vm(model), class="container", [
+function ui(model)
+  page(model, class="container", [
       plot(:data, layout = :layout, config = :config)
     ]
   ) |> html
 end
 
-route("/", ui)
+route("/") do
+  Stipple.init(Model) |> ui
+end
 
 up()

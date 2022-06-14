@@ -1,6 +1,4 @@
-using Genie, Genie.Renderer.Html, Stipple, StipplePlotly
-
-Genie.config.log_requests = false
+using Stipple, StipplePlotly
 
 xrange = 0.0:(2π/1000):2π
 
@@ -56,22 +54,22 @@ pl() = PlotLayout(
   annotations = [PlotAnnotation(visible=true, x=xexperiment[6], y=yexperiment[6], text="possible outlier")]
 )
 
-Base.@kwdef mutable struct Model <: ReactiveModel
+@reactive! mutable struct Model <: ReactiveModel
   data::R{Vector{PlotData}} = [pd_line("Sinus", xrange), pd_scatter("Experiment", xexperiment, dx, yexperiment, dy)]
   layout::R{PlotLayout} = pl()
   config::R{PlotConfig} = PlotConfig()
 end
 
-model = Stipple.init(Model())
 
-function ui()
-  page(
-    vm(model), class="container", [
+function ui(model)
+  page(model, class="container", [
         plot(:data, layout = :layout, config = :config)
     ]
   ) |> html
 end
 
-route("/", ui)
+route("/") do
+  Stipple.init(Model) |> ui
+end
 
 up()

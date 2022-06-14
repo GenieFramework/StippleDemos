@@ -30,9 +30,6 @@ pd(name) = PlotData(
   config::R{PlotConfig} = PlotConfig()
 end
 
-
-model = Model |> init
-
 #== ui ==#
 
 function ui(model)

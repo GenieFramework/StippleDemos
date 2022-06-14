@@ -7,6 +7,6 @@ StipplePlotly = "ec984513-233d-481d-95b0-a3b58b97af2b"
 StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
-Genie = "4.18.1"
-Stipple = "0.23"
-StipplePlotly = "0.11"
+Genie = "4"
+Stipple = "0.16, 0.17"
+StipplePlotly = "0.6, 0.7"
