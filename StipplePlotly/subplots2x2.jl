@@ -4,8 +4,6 @@ xx = -π:(2π/250):π
 
 xxs = -3.0:0.2:3.0
 
-Data:
-
 pl1 = PlotData(
     x = xx, y = sin.(xx), plot = StipplePlotly.Charts.PLOT_TYPE_SCATTER,
     name = "sine", mode = "lines", xaxis = "x", yaxis = "y", line = PlotlyLine(color = "rgb(0,0,192)", dash="solid")
