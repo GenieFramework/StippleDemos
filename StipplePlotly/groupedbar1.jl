@@ -1,6 +1,4 @@
-using Genie, Stipple, StipplePlotly
-
-Genie.config.log_requests = false
+using Stipple, StipplePlotly
 
 # for m in [Genie, Stipple, StipplePlotly]
 #   m.assets_config.host = "https://cdn.statically.io/gh/GenieFramework"
@@ -51,22 +49,21 @@ layout = PlotLayout(barmode="group", font=Font(16),
     yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", title="ratio (%)", font=Font(size=24), autorange=false, range=[70.0,100.0], showline = true, zeroline = false)]
 )
 
-Base.@kwdef mutable struct Model <: ReactiveModel
+@reactive! mutable struct Model <: ReactiveModel
   data::R{Vector{PlotData}} = plotdata, READONLY
   layout::R{PlotLayout} = layout, READONLY
   config::R{PlotConfig} = PlotConfig(), READONLY
 end
 
-model = Stipple.init(Model())
-
-function ui()
-  page(
-    vm(model), class="container", [
+function ui(model)
+  page(model, class="container", [
         plot(:data, layout = :layout, config = :config)
     ]
   ) |> html
 end
 
-route("/", ui)
+route("/") do
+    Stipple.init(Model) |> ui
+end
 
 up()
