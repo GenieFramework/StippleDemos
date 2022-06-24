@@ -9,12 +9,11 @@ datatable = DataTable(df)
 
 @reactive! struct TableDemo <: ReactiveModel
     @mixin table::DataTableWithSelection(var"" = datatable)
-    @mixin plot::PBPlotWithEvents(var"" = pl)
+    @mixin plot::PBPlotWithEvents(var"" = copy(pl))
 end
 
 Genie.Router.delete!(:TableDemo)
-
-model = init(TableDemo)
+Stipple.js_mounted(::TableDemo) = watchplot(:plot, :plot)
 
 function handlers(model)
     on(model.isready) do isready
@@ -26,9 +25,17 @@ function handlers(model)
         selectrows!(model, :table, getindex.(data["points"], "pointIndex") .+ 1)
     end
 
+    # the commented lines show a version that changes data on the backend first and then
+    # updates the full plot. That redraws the plot completely and resets the mode to default.
+    # So you will be in zoom-mode again, even if you were in select-mode before.
+    # The active version needs at least Stipple v0.24.2
     on(model.table_selection) do selection
-        model.plot.data[1][:selectedpoints] = getindex.(selection, "__id") .- 1
-        notify(model.plot)
+        ii = getindex.(selection, "__id") .- 1
+        model["plot.data[0].selectedpoints"] = isempty(ii) ? nothing : ii
+        # model.plot.data[1][:selectedpoints] = isempty(ii) ? nothing : ii
+        
+        notify(model, js"plot.data")
+        # notify(model.plot)
     end
 
     return model
@@ -51,7 +58,5 @@ route("/") do
     model = init(TableDemo, debounce = 0)
     model |> handlers |> ui |> html
 end
-
-Stipple.js_mounted(::TableDemo) = watchplot(:plot, :plot)
 
 up()
