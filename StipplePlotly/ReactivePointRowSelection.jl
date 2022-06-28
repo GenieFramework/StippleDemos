@@ -8,12 +8,13 @@ pl = PlotlyBase.Plot(scatter(x = df.a, text = df.b))
 datatable = DataTable(df)
 
 @reactive! struct TableDemo <: ReactiveModel
-    @mixin table::DataTableWithSelection(var"" = datatable)
+    @mixin table::DataTableWithSelection(var"" = DataTable(copy(df)))
     @mixin plot::PBPlotWithEvents(var"" = copy(pl))
+    showplot::R{Bool} = true
 end
 
 Genie.Router.delete!(:TableDemo)
-Stipple.js_mounted(::TableDemo) = watchplot(:plot, :plot)
+Stipple.js_mounted(::TableDemo) = watchplots(TableDemo)
 
 function handlers(model)
     on(model.isready) do isready
@@ -33,7 +34,7 @@ function handlers(model)
         ii = getindex.(selection, "__id") .- 1
         model["plot.data[0].selectedpoints"] = isempty(ii) ? nothing : ii
         # model.plot.data[1][:selectedpoints] = isempty(ii) ? nothing : ii
-        
+
         notify(model, js"plot.data")
         # notify(model.plot)
     end
@@ -45,10 +46,11 @@ function ui(model)
     page(
         model,
         title = "Hello Stipple",
-        cell([
+        row(cell(class = "st-module",[
             table(:table,  selection = "multiple", var":selected.sync" = "table_selection", pagination = :table_pagination)
-            plotly(:plot, id = "plot")
-        ])
+            toggle("Show plot", :showplot)
+            plotly(:plot, @iif("showplot"), syncevents = true)
+        ]))
     )
 end
 
