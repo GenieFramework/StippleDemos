@@ -14,7 +14,7 @@ datatable = DataTable(df)
 end
 
 Genie.Router.delete!(:TableDemo)
-Stipple.js_mounted(::TableDemo) = watchplots(TableDemo)
+Stipple.js_mounted(::TableDemo) = watchplots()
 
 function handlers(model)
     on(model.isready) do isready
@@ -50,7 +50,8 @@ function ui(model)
             table(:table,  selection = "multiple", var":selected.sync" = "table_selection", pagination = :table_pagination)
             toggle("Show plot", :showplot)
             plotly(:plot, @iif("showplot"), syncevents = true)
-        ]))
+        ])),
+        @iif(isready)
     )
 end
 
