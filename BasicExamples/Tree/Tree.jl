@@ -38,7 +38,7 @@ function ui(model)
     page(
         model,
         title = "Hello Stipple",
-        [
+        row(cell( class = "st-module", [
             quasar(:tree, var"node-key" = "key", nodes = :files,
                 var"tick-strategy"="leaf",
                 var"selected.sync" = :files_selected,
@@ -46,10 +46,10 @@ function ui(model)
                 var"expanded.sync" = :files_expanded
             )
 
-            mydiv("Ticked: {{ files_selected }}")
-            mydiv("Expanded: {{ files_expanded }}")
-            mydiv("Selected: {{ files_ticked }}")
-        ],
+            mydiv(h4("Expanded: ") * "{{ files_expanded }}")
+            mydiv(h4("Selected: ") * "{{ files_selected }}")
+            mydiv(h4("Ticked: ")   * "{{ files_ticked }}")
+        ])),
     )
 end
 
