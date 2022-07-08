@@ -47,8 +47,8 @@ function ui(model)
             )
 
             mydiv("Ticked: {{ files_selected }}")
-            mydiv("Ticked: {{ files_expanded }}")
-            mydiv("Ticked: {{ files_ticked }}")
+            mydiv("Expanded: {{ files_expanded }}")
+            mydiv("Selected: {{ files_ticked }}")
         ],
     )
 end
