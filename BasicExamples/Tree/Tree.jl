@@ -62,6 +62,7 @@ function handlers(model)
 end
 
 route("/") do
+    # model defined gloablly for debugging and testing only
     global model
     model = init(TreeDemo) |> handlers
     model |> ui |> html
