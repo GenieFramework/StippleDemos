@@ -28,8 +28,8 @@ cd(dirname(@__DIR__))
     name::R{String} = ""
     files::R{Vector{Dict{Symbol, Any}}} = [filedict(pwd())]
     files_selected::R{Vector{String}} = String[]
-    files_ticked::R{Any} = nothing
-    files_expanded::R{Any} = nothing
+    files_ticked::R{String} = ""
+    files_expanded::R{String} = ""
 end
 
 Genie.Router.delete!(:TreeDemo)
