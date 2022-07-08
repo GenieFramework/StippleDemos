@@ -27,9 +27,19 @@ cd(dirname(@__DIR__))
 @reactive! mutable struct TreeDemo <: ReactiveModel
     name::R{String} = ""
     files::R{Vector{Dict{Symbol, Any}}} = [filedict(pwd())]
-    files_selected::R{Vector{String}} = String[]
-    files_ticked::R{String} = ""
-    files_expanded::R{String} = ""
+    files_selected::R{String} = ""
+    files_ticked::R{Vector{String}} = String[]
+    files_expanded::R{Vector{String}} = String[]
+end
+
+
+# alternative definition with the new @mixin macro
+# this will work with StippleUI v0.19.3 or latest master
+
+register_mixin(@__MODULE__)
+@reactive! mutable struct TreeDemo <: ReactiveModel
+    name::R{String} = ""
+    @mixin files::TreeSelectable([filedict(pwd())])
 end
 
 Genie.Router.delete!(:TreeDemo)
@@ -39,7 +49,7 @@ function ui(model)
         model,
         title = "Hello Stipple",
         row(cell( class = "st-module", [
-            quasar(:tree, var"node-key" = "key", nodes = :files,
+            tree(var"node-key" = "key", nodes = :files,
                 var"tick-strategy"="leaf",
                 var"selected.sync" = :files_selected,
                 var"ticked.sync" = :files_ticked,
