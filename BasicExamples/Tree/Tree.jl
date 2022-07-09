@@ -49,12 +49,19 @@ function ui(model)
         model,
         title = "Hello Stipple",
         row(cell( class = "st-module", [
-            tree(var"node-key" = "key", nodes = :files,
+            row([tree(var"node-key" = "key", nodes = :files,
                 var"tick-strategy"="leaf",
                 var"selected.sync" = :files_selected,
                 var"ticked.sync" = :files_ticked,
                 var"expanded.sync" = :files_expanded
             )
+
+            tree(var"node-key" = "key", nodes = :files,
+                var"tick-strategy"="leaf",
+                var"selected.sync" = :files_selected,
+                var"ticked.sync" = :files_ticked,
+                var"expanded.sync" = :files_expanded
+            )])
 
             mydiv(h4("Expanded: ") * "{{ files_expanded }}")
             mydiv(h4("Selected: ") * "{{ files_selected }}")
