@@ -87,7 +87,7 @@ end
 function ui(model)
     page(
         model,
-        title = "Draggable Tree Demo",
+        title = "Sortable Tree Demo",
 
         row(cell(class = "st-module", [
             h3("Implementation of " * a("mechanicalgux's QSortableTree", href = "https://gitlab.com/mechanicalgux/quasar-sortable-tree", style = "text-decoration: none"))
