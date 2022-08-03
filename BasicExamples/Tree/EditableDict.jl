@@ -102,10 +102,10 @@ function ui(model)
                 var"expanded.sync" = :tree_expanded,
                 [
                     template("", var"v-slot:body-text" = "prop", [
-                        "T", textfield("", dense = true, label = R"prop.node.label", value = R"getindex(prop.node.key)", var"@input" = "newval => setindex(prop.node.key, newval)")
+                        textfield("", dense = true, label = R"prop.node.label", value = R"getindex(prop.node.key)", var"@input" = "newval => setindex(prop.node.key, newval)")
                     ]),
                     template("", var"v-slot:body-number" = "prop", [
-                        "N", textfield("", dense = true, label = R"prop.node.label", value = R"getindex(prop.node.key)", var"@input" = "newval => setindex(prop.node.key, 1 * newval)")
+                        textfield("", dense = true, label = R"prop.node.label", value = R"getindex(prop.node.key)", var"@input" = "newval => setindex(prop.node.key, 1 * newval)")
                     ]),
                     template("", var"v-slot:body-bool" = "prop", [
                         checkbox("", dense = true, label = R"prop.node.label", value = R"getindex(prop.node.key)", var"@input" = "newval => setindex(prop.node.key, newval)")
@@ -114,9 +114,9 @@ function ui(model)
             )
         ])
 
-            mydiv(h4("Expanded: ") * "{{ tree_expanded }}")
-            mydiv(h4("Selected: ") * "{{ tree_selected }}")
-            mydiv(h4("Ticked: ")   * "{{ tree_ticked }}")
+            # mydiv(h4("Expanded: ") * "{{ tree_expanded }}")
+            # mydiv(h4("Selected: ") * "{{ tree_selected }}")
+            # mydiv(h4("Ticked: ")   * "{{ tree_ticked }}")
         ])),
     )
 end
