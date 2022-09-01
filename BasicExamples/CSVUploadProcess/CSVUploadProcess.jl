@@ -2,6 +2,7 @@ using Genie, Stipple
 using Genie.Requests
 using StippleUI
 using StipplePlotly
+using Clustering
 using DataFrames
 using CSV
 
@@ -13,26 +14,30 @@ Genie.config.cors_allowed_origins = ["*"]
 data = DataFrame()
 
 function create_storage_dir(name)
-  try
-    mkdir(joinpath(@__DIR__, name))
-  catch
-    @warn "directory already exists"
-  end
-  return joinpath(@__DIR__, name)
+    isdir(name) ? rm(name, recursive=true) : println("No $name dir exists. Creating ...")
+    
+    try
+        mkdir(joinpath(@__DIR__, name))
+    catch
+        @warn "directory already exists"
+    end
+
+    return joinpath(@__DIR__, name)
 end
 
 #DataFrames.insertcols!(DataFrame(CSV.File("Backend_Upload/iris.csv")), :Cluster => zeros(Int, 150))
 
 # Generate file path
 const FILE_PATH = create_storage_dir("Backend_Upload")
-# Define react model
+
+# Define reactive model
 @reactive mutable struct IrisModel <: ReactiveModel
     iris_data::R{DataTable} = DataTable(data)   
     credit_data_pagination::DataTablePagination =
       DataTablePagination(rows_per_page=50)     
   
     features::R{Vector{String}} =
-      ["SepalLength", "SepalWidth", "PetalLength", "PetalWidth"]
+      ["sepal_length", "sepal_width", "petal_length", "petal_width"]
     xfeature::R{String} = ""
     yfeature::R{String} = ""
   
@@ -76,17 +81,16 @@ function compute_clusters!(ic_model::IrisModel)
     nothing
 end
 
-# function handlers(model::IrisModel)
-    
-    
-#     model
-# end
-
-function ui(model::IrisModel)
+function handlers(model::IrisModel)
     onany(model.xfeature, model.yfeature, model.no_of_clusters, model.no_of_iterations) do (_...)
-        model.iris_plot_data[] = plot_data(:Species, model)
+        model.iris_plot_data[] = plot_data(:species, model)
         compute_clusters!(model)
     end
+
+    model
+end
+
+function ui(model::IrisModel)
     
     page(model, title="Upload Dashboard",
     prepend = style(
@@ -163,8 +167,10 @@ function ui(model::IrisModel)
     ])
 end
 
+iris_model = init(IrisModel)
+
 route("/") do
-    IrisModel |> init |> ui |> html
+    iris_model |> handlers |> ui |> html
 end
 
 #uploading csv files to the backend serverf
@@ -179,6 +185,7 @@ route("/", method = POST) do
     end
 
   global data = DataFrames.insertcols!(DataFrame(CSV.File("Backend_Upload/iris.csv")), :Cluster => zeros(Int, 150))
+  iris_model.iris_data[] = DataTable(data)
   return "upload done"
 end
 
