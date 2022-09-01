@@ -1,0 +1,13 @@
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StipplePlotly = "ec984513-233d-481d-95b0-a3b58b97af2b"
+StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+
+[compat]
+Stipple = "=0.25.0"
+StipplePlotly = "=0.13.0"
+StippleUI = "=0.20.1"
