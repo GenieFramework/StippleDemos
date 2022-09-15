@@ -1,39 +1,53 @@
 using Stipple, StippleUI
 
+import Genie.Assets.add_fileroute
+
+cd(@__DIR__)
 # Genie.Secrets.secret_token!()
 
-register_mixin(@__MODULE__)
+# register_mixin(@__MODULE__)
 
 # to be implemented in Stipple or Genie ...
-function add_fileroute(assets_config::Genie.Assets.AssetsConfig, filename::AbstractString; 
-    basedir = @__DIR__, content_type::Union{Nothing, Symbol} = nothing, type::Union{Nothing, String} = nothing, ext::Union{Nothing, String} = nothing, kwargs...)
+# function add_fileroute(assets_config::Genie.Assets.AssetsConfig, filename::AbstractString; 
+#     basedir = @__DIR__, content_type::Union{Nothing, Symbol} = nothing, type::Union{Nothing, String} = nothing, ext::Union{Nothing, String} = nothing, kwargs...)
 
-    file, ex = splitext(filename)
-    ext = isnothing(ext) ? ex : ext
-    type = isnothing(type) ? ex[2:end] : type
+#     file, ex = splitext(filename)
+#     ext = isnothing(ext) ? ex : ext
+#     type = isnothing(type) ? ex[2:end] : type
     
-    content_type = isnothing(content_type) ? if type == "js"
-        :javascript
-    elseif type == "css"
-        :css
-    elseif type in ["jpg", "jpeg", "svg", "mov", "avi", "png", "gif", "tif", "tiff"]
-        imagetype = replace(type, Dict("jpg" => "jpeg", "mpg" => "mpeg", "tif" => "tiff")...)
-        Symbol("image/$imagetype")
-    else
-        Symbol("*.*")
-    end : content_type
+#     content_type = isnothing(content_type) ? if type == "js"
+#         :javascript
+#     elseif type == "css"
+#         :css
+#     elseif type in ["jpg", "jpeg", "svg", "mov", "avi", "png", "gif", "tif", "tiff"]
+#         imagetype = replace(type, Dict("jpg" => "jpeg", "mpg" => "mpeg", "tif" => "tiff")...)
+#         Symbol("image/$imagetype")
+#     else
+#         Symbol("*.*")
+#     end : content_type
 
-    Genie.Router.route(Genie.Assets.asset_path(assets_config, type; file, ext, kwargs...)) do
-        Genie.Renderer.WebRenderable(
-            Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; type, file)),
-        content_type) |> Genie.Renderer.respond
-    end
+#     Genie.Router.route(Genie.Assets.asset_path(assets_config, type; file, ext, kwargs...)) do
+#         Genie.Renderer.WebRenderable(
+#             Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; type, file)),
+#         content_type) |> Genie.Renderer.respond
+#     end
+# end
+
+css() = [style("""
+[v-cloak] { display: none; }
+""")]
+
+function add_css(css::Function; update = true)
+    update && deleteat!(Stipple.Layout.THEMES, nameof.(Stipple.Layout.THEMES) .== nameof(css)) 
+    push!(Stipple.Layout.THEMES, css)
 end
 
-add_fileroute(StippleUI.assets_config, "Sortable.min.js")
-add_fileroute(StippleUI.assets_config, "vuedraggable.umd.min.js")
-add_fileroute(StippleUI.assets_config, "vuedraggable.umd.min.js.map", type = "js")
-add_fileroute(StippleUI.assets_config, "QDraggableTree.js")
+add_css(css)
+
+add_fileroute(StippleUI.assets_config, "Sortable.min.js", basedir = pwd())
+add_fileroute(StippleUI.assets_config, "vuedraggable.umd.min.js", basedir = pwd())
+add_fileroute(StippleUI.assets_config, "vuedraggable.umd.min.js.map", type = "js", basedir = pwd())
+add_fileroute(StippleUI.assets_config, "QDraggableTree.js", basedir = pwd())
 
 draggabletree_deps() = [
     script(src = "/stippleui.jl/master/assets/js/sortable.min.js")
@@ -71,7 +85,7 @@ files = filedict(dirname(dirname(@__DIR__)))
     files::R{Vector{Dict{Symbol, Any}}} = [files]
 end
 
-Genie.Router.delete!(:DraggableTreeDemo)
+Genie.Router.delete!(Symbol(DraggableTreeDemo))
 Stipple.js_mounted(::DraggableTreeDemo) = ""
 
 function handlers(model)
@@ -96,8 +110,8 @@ function ui(model)
                 cell(draggabletree(:files, rowkey = "key", group = "test"))
             ])
         ])),
-        @iif(isready)
-    )
+        @iif(isready),
+    "v-cloak")
 end
 
 route("/") do
