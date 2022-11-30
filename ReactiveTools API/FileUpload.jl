@@ -20,9 +20,9 @@ end
     for f in event["files"]
         f["__status"] == "uploaded" || continue
         filepath = joinpath(pwd(), UPLOAD, f["fname"])
-        model.message[] *= f["fname"] * ":<br>first line: " * readline(filepath) * "<br><br><br>"
+        message *= f["fname"] * ":<br>first line: " * readline(filepath) * "<br><br><br>"
         if endswith(filepath, r"csv"i)
-            model.df[] = CSV.read(filepath, DataFrame)
+            df = CSV.read(filepath, DataFrame)
         end
         rm(filepath)
     end
@@ -36,7 +36,7 @@ end
 function ui()
     [
         uploader("Upload files", url = "/upload" , autoupload = true, :multiple,
-            @on(:uploaded, :uploaded, "for (let f2 in event.files) { event.files[f2].fname = event.files[f2].name }")
+            @on(:uploaded, :uploaded, "for (let f in event.files) { event.files[f].fname = event.files[f].name }")
         )
 
         card(class = "q-mt-lg q-pa-md text-white",
