@@ -1,20 +1,24 @@
-using Stipple, StippleUI
-using Random, Genie.Sessions
+using Stipple
+using StippleUI
+using GenieSession
 
-Sessions.init()
-@reactive! mutable struct Name <: ReactiveModel
+@vars Name begin
   name::R{String} = ""
 end
 
-function ui(model)
+function handlers(model)
   on(model.isready) do _
-    model.name[] = Sessions.get!(:name, "")
+    model.name[] = GenieSession.get!(:name, "")
   end
 
   on(model.name) do val
-    Sessions.set!(:name, val) |> Sessions.persist
+    GenieSession.set!(:name, val) |> GenieSession.persist
   end
 
+  model
+end
+
+function ui(model)
   [
     page(
       model,
@@ -35,7 +39,7 @@ function ui(model)
 end
 
 route("/") do
-  init(Name) |> ui |> html
+  init(Name) |> handlers |> ui |> html
 end
 
 up()

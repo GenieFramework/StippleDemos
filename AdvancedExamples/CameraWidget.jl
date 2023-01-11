@@ -37,6 +37,8 @@ const PORT = 8000
 CAMERAS = Dict{UInt64, Camera}()
 
 empty!(CAMERAS)
+opencamera()
+
 for camera in VideoIO.CAMERA_DEVICES
     push!(CAMERAS, hash(camera) => Camera(;camera))
 end
@@ -95,22 +97,22 @@ function stop_camera(camera::Camera)
     end
 end
 
-@reactive! mutable struct WebCam <: ReactiveModel
-    camera::R{String} = CAMERAS[hash(first(VideoIO.CAMERA_DEVICES))].camera
-    cameraon::R{Bool} = false
-    cameratimer::Int = 0
-    updatemode::R{String} = "webchannel"
-    request_image::R{Bool} = false
+@vars WebCam begin
+    camera = CAMERAS[hash(first(VideoIO.CAMERA_DEVICES))].camera
+    cameraon = false
+    cameratimer = 0, NON_REACTIVE, PRIVATE
+    updatemode = "webchannel"
+    request_image = false
 
-    cameras::R{Vector{String}} = copy(VideoIO.CAMERA_DEVICES), READONLY
+    cameras = copy(VideoIO.CAMERA_DEVICES), READONLY
     
     # refresh rate of the browser (not necessarily identical with the hardware refreshrate `camera.fps`)
     # this can be chosen a higher number than the hardware resfresh rate, e.g. 100, as the browser will skip frames
     # as long as the previous frame has not been transferred. Very high rates will decrease browser performance, though.
-    fps::R{Int} = 0 
+    fps = 0 
 
-    img::R{Vector{UInt8}} = Vector{UInt8}(), PRIVATE
-    image::R{String} = ""
+    img = UInt8[], PRIVATE
+    image = ""
 end
 
 Stipple.js_methods(model::WebCam) = """
@@ -211,8 +213,6 @@ route("frame/:camera/:timestamp") do
     # t0 = now()
     HTTP.Messages.Response(200, CAMERAS[payload(:camera)].img)
 end
-
-Genie.config.server_host = "127.0.0.1"
 
 up(PORT)
 
