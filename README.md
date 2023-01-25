@@ -3,7 +3,7 @@ This repository includes a collection of Stipple demo application. Uses [Stipple
 
 > Deprecation Warning !!! 
 -----
-### Stipple Ecosystem now GenieFramework is evolving very fast. You'll find some of these demos outdated and broken(if not used with relevant .toml). You can find the new demos [here](https://github.com/GenieFramework/StippleDemos.git)
+### Stipple Ecosystem now GenieFramework is evolving very fast. You'll find some of these demos outdated and broken(if not used with relevant .toml). You can find the new demos [here](https://github.com/GenieFramework/GenieFrameworkDemos_NewAPI)
 -----
 
 
