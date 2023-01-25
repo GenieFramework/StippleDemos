@@ -9,7 +9,7 @@ write(joinpath(pwd(), "test.csv"), "a,b\n1,2\n10,11")
 @handlers begin
     @out message = ""
     @private df = DataFrame()
-    @out table = DataTable()
+    @out! table = DataTable()
     @onchange isready begin
         @show "App is loaded"
     end
@@ -36,6 +36,10 @@ end
 function ui()
     [
         uploader("Upload files", url = "/upload" , autoupload = true, :multiple,
+            # the event does not transport the `files` object automatically, therefore
+            # we preprocess the event to contain the filenames in the field `fname`
+            # the @on macro supports a third parameter that contains a preprocessing expression.
+            # Inspect the following line at the REPL for deeper understanding.
             @on(:uploaded, :uploaded, "for (let f in event.files) { event.files[f].fname = event.files[f].name }")
         )
 
