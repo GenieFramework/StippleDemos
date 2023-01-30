@@ -16,7 +16,7 @@ write(joinpath(pwd(), "test.csv"), "a,b\n1,2\n10,11")
     @onchange df table = DataTable(df)
 end
 
-@event uploaded begin
+@event :uploaded begin
     for f in event["files"]
         f["__status"] == "uploaded" || continue
         filepath = joinpath(pwd(), UPLOAD, f["fname"])
@@ -29,8 +29,8 @@ end
 end
 
 @event :clear begin                                                                                                                                                 
-    model.message[] = ""                                                                                                                                              
-    println(event)                                                                                                                                                    
+    message = ""                                                                                                                                             
+    println(event)
 end
 
 function ui()
