@@ -1,7 +1,7 @@
 using Stipple, StipplePlotly
 
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
     data::R{PlotData} = PlotData(
                             locations= ["FRA", "DEU", "RUS", "ESP"],
                             plot = StipplePlotly.Charts.PLOT_TYPE_SCATTERGEO,

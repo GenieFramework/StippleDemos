@@ -99,7 +99,7 @@ mycss() = [
 
 add_css(mycss)
 
-@reactive! mutable struct TableDemo <: ReactiveModel 
+@vars TableDemo begin
     table::R{DataTable} = DataTable()
     
     downloadbutton::R{Bool} = false

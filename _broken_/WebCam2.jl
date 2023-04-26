@@ -59,7 +59,7 @@ end
 # emergency break:
 # Base.throwto(cameraproc, InterruptException())
 
-@reactive! mutable struct WebCam <: ReactiveModel
+@vars WebCam begin
     cameraon::R{Bool} = true
     imageurl::String = ""
     cameratimer::Int = 0

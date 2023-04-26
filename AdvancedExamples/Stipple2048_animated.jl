@@ -54,7 +54,7 @@ Stipple.@kwdef mutable struct Tile
     style::String = ""
 end
 
-@reactive! mutable struct G2048 <: ReactiveModel
+@vars G2048 begin
     score::R{Int} = 0
     bitboard::R{Bitboard} = G.initbboard()
     lastboard::R{Bitboard} = Bitboard(0), READONLY

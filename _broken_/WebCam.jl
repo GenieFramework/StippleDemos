@@ -104,7 +104,7 @@ function start_camera() # restart camera
     CAM_PROCESS[] = _start_camera()
 end
 
-@reactive! mutable struct WebCam <: ReactiveModel
+@vars WebCam begin
     cameraon::R{Bool} = true
     imageurl::String = ""
     cameratimer::Int = 0

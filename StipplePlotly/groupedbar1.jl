@@ -49,7 +49,7 @@ layout = PlotLayout(barmode="group", font=Font(16),
     yaxis = [PlotLayoutAxis(xy = "y", index = 1, ticks = "outside", title="ratio (%)", font=Font(size=24), autorange=false, range=[70.0,100.0], showline = true, zeroline = false)]
 )
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
   data::R{Vector{PlotData}} = plotdata, READONLY
   layout::R{PlotLayout} = layout, READONLY
   config::R{PlotConfig} = PlotConfig(), READONLY

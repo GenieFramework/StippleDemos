@@ -1,7 +1,7 @@
 using Stipple, StippleUI
 import Stipple.opts
 
-@reactive! mutable struct Test <: ReactiveModel
+@vars Test begin
     s_editor::R{String} = "What you see is <b>what</b> you get."
     myfont::R{Dict{Symbol, Any}} = opts(
         arial = "Arial",

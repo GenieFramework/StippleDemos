@@ -61,7 +61,7 @@ function dict_tree(startfile; parent = "d", name = "d")
 end
 
 
-@reactive! mutable struct TreeDemo <: ReactiveModel
+@vars TreeDemo begin
     d::R{Dict{String, Any}} = deepcopy(testdict)
     tree::R{Vector{Dict{Symbol, Any}}} = [dict_tree(testdict)]
 

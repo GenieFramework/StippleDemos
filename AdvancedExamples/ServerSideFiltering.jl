@@ -9,7 +9,7 @@ import Stipple: js_methods
 
 using Random
 
-@reactive! mutable struct Example <: ReactiveModel
+@vars Example begin
     select::R{Vector{String}} = String[]
     options::R{Vector{String}} = ["Options 1", "Options 2", "Options 3"]
     filter::R{String} = ""

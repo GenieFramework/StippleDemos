@@ -67,7 +67,7 @@ const plot_options = OptDict(
 
 const xx = Base.range(0, 4π, length=200) |> collect
 
-@reactive mutable struct MyDashboard <: ReactiveModel
+@vars MyDashboard begin
     a::R{Float64} = 1.0
     b::R{Float64} = 0.0
     c::R{Float64} = 0.0

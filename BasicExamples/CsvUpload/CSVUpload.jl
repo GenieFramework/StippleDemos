@@ -26,7 +26,7 @@ end
 # Generate file path
 const FILE_PATH = create_storage_dir("Backend_Upload")
 # Define react model
-@reactive mutable struct APP <: ReactiveModel end
+@vars APP begin
 
 function ui(model::APP)
   page(model, title="Dashboard",

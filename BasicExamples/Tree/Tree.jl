@@ -24,7 +24,7 @@ end
 
 cd(dirname(@__DIR__))
 
-@reactive! mutable struct TreeDemo <: ReactiveModel
+@vars TreeDemo begin
     name::R{String} = ""
     files::R{Vector{Dict{Symbol, Any}}} = [filedict(pwd())]
     files_selected::R{String} = ""
@@ -37,7 +37,7 @@ end
 # this will work with StippleUI v0.19.3 or latest master
 
 register_mixin(@__MODULE__)
-@reactive! mutable struct TreeDemo <: ReactiveModel
+@vars TreeDemo begin
     name::R{String} = ""
     @mixin files::TreeSelectable([filedict(pwd())])
 end

@@ -1,6 +1,6 @@
 using Stipple, StipplePlotly
 
-@reactive mutable struct Model <: ReactiveModel
+@vars Model begin
   marker::PlotDataMarker =
     PlotDataMarker(opacity = [1, 0.8, 0.6, 0.4], size = [40, 60, 80, 100])
 

@@ -66,7 +66,7 @@ layout = PlotLayout(
     ],
 )
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
   data::R{Vector{PlotData}} = plotdata, READONLY
   layout::R{PlotLayout} = layout, READONLY
   config::R{PlotConfig} = PlotConfig(), READONLY

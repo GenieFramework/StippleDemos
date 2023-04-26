@@ -8,7 +8,7 @@ import DataFrames
 
 data = DataFrames.insertcols!(dataset("datasets", "iris"), :Cluster => zeros(Int, 150))
 
-@reactive mutable struct IrisModel <: ReactiveModel
+@vars IrisModel begin
   iris_data::R{DataTable} = DataTable(data)   
   credit_data_pagination::DataTablePagination =
     DataTablePagination(rows_per_page=50)     

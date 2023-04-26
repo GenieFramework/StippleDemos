@@ -12,7 +12,7 @@ pd1 = PlotData(
 
 plot_data = [pd1]
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
     data::R{Vector{PlotData}} = plot_data, READONLY
     layout::R{PlotLayout} = PlotLayout(
         plot_bgcolor = "#999",

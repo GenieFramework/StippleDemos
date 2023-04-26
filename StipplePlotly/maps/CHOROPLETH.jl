@@ -4,7 +4,7 @@ using Stipple, StipplePlotly
 data = CSV.read(download("https://raw.githubusercontent.com/plotly/datasets/master/2010_alcohol_consumption_by_country.csv"), DataFrame)
 
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
     data::R{PlotData} = PlotData(
         plot = StipplePlotly.Charts.PLOT_TYPE_CHOROPLETH,
         locationmode = "country names",

@@ -11,7 +11,7 @@ trace2 = PlotlyBase.bar(x=["giraffes", "orangutans", "monkeys"],
                  y=[12, 18, 29],
                  name="LA Zoo")
 
-@reactive! mutable struct BarPlot <: ReactiveModel
+@vars BarPlot begin
     data::R{Vector{GenericTrace}} = [trace1, trace2]
 
     my_layout::R{PlotlyBase.Layout} = PlotlyBase.Layout(;barmode="stack")

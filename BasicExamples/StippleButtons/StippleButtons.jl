@@ -1,7 +1,7 @@
 using Stipple
 using StippleUI
 
-@reactive! mutable struct SBModel <: ReactiveModel
+@vars SBModel begin
   clicks::R{Int} = 0
   value::R{Int} = 0
 end
