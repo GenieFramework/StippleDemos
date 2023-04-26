@@ -1,7 +1,7 @@
 using Stipple
 using StippleUI
 
-@reactive mutable struct Model <: ReactiveModel
+@vars Model begin
   valone::R{Bool} = false
   valtwo::R{Bool} = false
   valthree::R{Bool} = false

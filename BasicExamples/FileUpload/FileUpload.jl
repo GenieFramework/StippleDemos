@@ -8,7 +8,7 @@ Genie.config.cors_allowed_origins = ["*"]
 
 const FILE_PATH = "upload/file.jpg"
 
-@reactive mutable struct Model <: ReactiveModel end
+@vars Model begin
 
 #== view ==#
 function ui(model)

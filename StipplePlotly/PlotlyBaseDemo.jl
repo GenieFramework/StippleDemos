@@ -1,7 +1,7 @@
 using Stipple, StipplePlotly
 using PlotlyBase
 
-@reactive! mutable struct Example <: ReactiveModel
+@vars Example begin
     plot::R{Plot} = Plot()
 end
 

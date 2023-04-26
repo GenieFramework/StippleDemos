@@ -98,7 +98,7 @@ function stop_camera(camera::Camera)
     end
 end
 
-@reactive! mutable struct WebCam <: ReactiveModel
+@vars WebCam begin
     camera::R{String} = CAMERAS[first(VideoIO.CAMERA_DEVICES)].camera
     cameraon::R{Bool} = false
     cameratimer::Int = 0

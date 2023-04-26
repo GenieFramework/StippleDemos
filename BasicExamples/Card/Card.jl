@@ -3,7 +3,7 @@ using StippleUI
 
 # CardDemo definition inheriting from ReactiveModel
 # Base.@kwdef: that defines keyword based contructor of mutable struct
-@reactive mutable struct CardDemo <: ReactiveModel end
+@vars CardDemo begin
 
 function ui(model)
   [

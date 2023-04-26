@@ -1,7 +1,7 @@
 using Stipple, StipplePlotly
 using PlotlyBase
 
-@reactive! mutable struct Example <: ReactiveModel
+@vars Example begin
     plot1::R{Plot} = Plot()
     plot1_selected::R{Dict{String, Any}} = Dict{String, Any}()
     plot1_hover::R{Dict{String, Any}} = Dict{String, Any}()

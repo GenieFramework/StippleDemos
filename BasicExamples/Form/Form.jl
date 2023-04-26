@@ -1,6 +1,6 @@
 using Stipple, StippleUI
 
-@reactive mutable struct FormComponent <: ReactiveModel
+@vars FormComponent begin
   name::R{String} = ""
   age::R{Int} = 0
   objects::R{Vector} = ["Dog", "Cat", "Beer"]

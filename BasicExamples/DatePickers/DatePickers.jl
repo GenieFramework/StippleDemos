@@ -3,7 +3,7 @@ import Stipple.Html: div
 
 # R{Date}, R{Vector{DateRange}} etc are type Observable and you can listen for changes 
 # https://juliagizmos.github.io/Observables.jl/stable/
-@reactive mutable struct DatePickers <: ReactiveModel
+@vars DatePickers begin
   date::R{Date} = today() + Day(30)
   dates::R{Vector{Date}} = Date[today()+Day(10), today()+Day(20), today()+Day(30)]
   daterange::R{DateRange} = DateRange(today(), (today() + Day(3)))

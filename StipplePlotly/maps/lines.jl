@@ -30,7 +30,7 @@ for i in 1:length(scl)
     push!(data, current)
 end
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
     data::R{Vector{PlotData}} = data
     layout::R{PlotLayout} = PlotLayout(
         geo = PlotLayoutGeo(

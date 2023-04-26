@@ -54,7 +54,7 @@ pl() = PlotLayout(
   annotations = [PlotAnnotation(visible=true, x=xexperiment[6], y=yexperiment[6], text="possible outlier")]
 )
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
   data::R{Vector{PlotData}} = [pd_line("Sinus", xrange), pd_scatter("Experiment", xexperiment, dx, yexperiment, dy)]
   layout::R{PlotLayout} = pl()
   config::R{PlotConfig} = PlotConfig()

@@ -15,7 +15,7 @@ cd(@__DIR__)
 data = CSV.File("data/german_credit.csv") |> DataFrame
 
 # Defining a Stipple ReactiveModel of type observable 
-@reactive mutable struct Dashboard1 <: ReactiveModel
+@vars Dashboard1 begin
   credit_data::R{DataTable} = DataTable()
   credit_data_pagination::DataTablePagination = DataTablePagination(rows_per_page=100)
   credit_data_loading::R{Bool} = false

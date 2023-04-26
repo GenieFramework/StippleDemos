@@ -1,7 +1,7 @@
 using Stipple
 using StippleCharts
 
-@reactive mutable struct HelloPie <: ReactiveModel
+@vars HelloPie begin
   plot_options::R{PlotOptions} = PlotOptions(
     chart_type = :pie,
     chart_width = 380,

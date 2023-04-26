@@ -21,7 +21,7 @@ pd(name) = PlotData(
 
 #== reactive model ==#
 
-@reactive! mutable struct Model <: ReactiveModel
+@vars Model begin
   data::R{Vector{PlotData}} = [pd("Random 1"),pd("Random 2")]
   layout::R{PlotLayout} = PlotLayout(
       plot_bgcolor = "#333",

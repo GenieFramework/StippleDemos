@@ -3,7 +3,7 @@ using DataFrames
 
 include("lib/solver.jl") # get_data from solver.jl
 
-@reactive mutable struct HeatPages <: ReactiveModel
+@vars HeatPages begin
     tableData::R{DataTable} = DataTable(DataFrame(1000 * ones(10, 10), ["$i" for i in 1:10]))
     credit_data_pagination::DataTablePagination = DataTablePagination(rows_per_page=10)
 

@@ -14,7 +14,7 @@ function handlers(model)
   model
 end
 
-@reactive mutable struct Model <: ReactiveModel
+@vars Model begin
   url::R{String} = "https://placeimg.com/500/300/nature"
   refresh::R{Bool} = false
 end

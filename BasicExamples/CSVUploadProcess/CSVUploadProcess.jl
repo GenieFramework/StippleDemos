@@ -31,7 +31,7 @@ end
 const FILE_PATH = create_storage_dir("Backend_Upload")
 
 # Define reactive model
-@reactive mutable struct IrisModel <: ReactiveModel
+@vars IrisModel begin
     iris_data::R{DataTable} = DataTable(data)   
     credit_data_pagination::DataTablePagination =
       DataTablePagination(rows_per_page=50)     
