@@ -1,10 +1,11 @@
+> <span style="color:red"> Deprecation Warning !!! </span>
+### Stipple Ecosystem, now GenieFramework, is evolving very fast. You'll find some of these demos outdated and broken(if not used with relevant .toml). You can find the new demos [here](https://github.com/builtwithgenie)
+-----
+
 # Demos for Stipple Ecosystem
 This repository includes a collection of Stipple demo application. Uses [Stipple](https://github.com/GenieFramework/Stipple.jl), [StippleUI](https://github.com/GenieFramework/StippleUI.jl), [StippleCharts](https://github.com/GenieFramework/StippleCharts.jl) and [Genie](https://github.com/GenieFramework/Genie.jl) from Stipple Ecosystem
 
-> Deprecation Warning !!! 
------
-### Stipple Ecosystem now GenieFramework is evolving very fast. You'll find some of these demos outdated and broken(if not used with relevant .toml). You can find the new demos [here](https://github.com/GenieFramework/GenieFrameworkDemos_NewAPI)
------
+
 
 
 ## Set up
