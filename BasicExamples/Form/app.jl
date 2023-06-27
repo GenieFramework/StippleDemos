@@ -60,7 +60,7 @@ end
 onSubmit () {
   console.log(this.accept)
   if (this.accept !== true) {
-    this.$q.notify({
+    this.\$q.notify({
       color: 'red-5',
       textColor: 'white',
       icon: 'warning',
@@ -68,7 +68,7 @@ onSubmit () {
     })
   }
   else {
-    this.$q.notify({
+    this.\$q.notify({
       color: 'green-4',
       textColor: 'white',
       icon: 'cloud_done',
