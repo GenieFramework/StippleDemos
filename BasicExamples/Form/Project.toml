@@ -1,7 +1,5 @@
 [deps]
-Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
-StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+GenieFramework = "a59fdf5c-6bf0-4f5d-949c-a137c9e2f353"
 
 [compat]
-Stipple = "0.22.0"
-StippleUI = "0.17.0"
+GenieFramework = "1.19.0"
