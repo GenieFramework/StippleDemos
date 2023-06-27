@@ -56,11 +56,13 @@ end
   accept = false
 end
 
-@methods """
+# when you don't want to interpolate string with $, you can use @raw
+# in this case, we are using @raw so that this.$q.notify is not interpolated
+@methods raw"""
 onSubmit () {
   console.log(this.accept)
   if (this.accept !== true) {
-    this.\$q.notify({
+    this.$q.notify({
       color: 'red-5',
       textColor: 'white',
       icon: 'warning',
@@ -68,7 +70,7 @@ onSubmit () {
     })
   }
   else {
-    this.\$q.notify({
+    this.$q.notify({
       color: 'green-4',
       textColor: 'white',
       icon: 'cloud_done',
