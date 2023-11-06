@@ -11,6 +11,9 @@ import FFMPEG_jll.ffmpeg
 import Base.cconvert
 Base.cconvert(::Type{Ptr{Ptr{VideoIO.AVDictionary}}}, d::VideoIO.AVDict) = d.ref_ptr_dict
 
+# needed for indexing of devices
+close(opencamera())
+
 const SX = 640
 const SY = 360
 const FPS = 30 # some cameras only support fix values, e.g. 30
@@ -104,7 +107,7 @@ function start_camera() # restart camera
     CAM_PROCESS[] = _start_camera()
 end
 
-@reactive! mutable struct WebCam <: ReactiveModel
+@vars WebCam begin
     cameraon::R{Bool} = true
     imageurl::String = ""
     cameratimer::Int = 0
@@ -140,7 +143,7 @@ function ui(model)
         ison ? start_camera() : stop_camera()
     end
 
-    dashboard(model, [      
+    page(model, [      
             p(quasar(:img, "", src=:imageurl, :basic, style="
                 -webkit-app-region: drag;
                 border-radius: 50%;
