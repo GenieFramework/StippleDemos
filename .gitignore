@@ -1,5 +1,6 @@
 .DS_Store
 Manifest.toml
+!AdvancedExamples/StippleMathjsDemo/Manifest.toml
 StippleDemo.mp4
 .DS_Store
 .vscode
