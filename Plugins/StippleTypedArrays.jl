@@ -22,7 +22,7 @@ struct TypedArray{T}
 end
 
 Base.setindex!(x::TypedArray, args...) = Base.setindex!(x.array, args...)
-Base.getindex(x::TypedArray, args...) = Base.getindex!(x.array, args...)
+Base.getindex(x::TypedArray, args...) = Base.getindex(x.array, args...)
 
 Base.convert(::Type{TypedArray}, v::AbstractVector{T}) where T = TypedArray{T}(convert(Vector{T}, v))
 Base.convert(::Type{T}, ta::TypedArray) where T <: Union{AbstractVector, TypedArray}  = convert(T, ta.array)
