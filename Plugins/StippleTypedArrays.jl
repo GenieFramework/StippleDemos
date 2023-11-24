@@ -33,8 +33,8 @@ Stipple.render(ta::TypedArray{T}) where T <: Int64 = LittleDict(:typedArray => T
 Stipple.render(ta::TypedArray{T}) where T <: UInt64 = LittleDict(:typedArray => T, :array => string.(reinterpret(Int64, ta.array)))
 
 Stipple.jsrender(ta::TypedArray{T}, args...) where T <: Real = JSONText("$(type_dict[T]).from($(json(ta.array)))")
-Stipple.jsrender(ta::TypedArray{T}, args...) where T <: UInt64 = JSONText("$(type_dict[T]).from($(string.(ta.array)))")
-Stipple.jsrender(ta::TypedArray{T}, args...) where T <: Int64 = JSONText("$(type_dict[T]).from($(string.(ta.array)))")
+Stipple.jsrender(ta::TypedArray{T}, args...) where T <: UInt64 = JSONText("$(type_dict[T]).from($(json(string.(ta.array))))")
+Stipple.jsrender(ta::TypedArray{T}, args...) where T <: Int64 = JSONText("$(type_dict[T]).from($(json(string.(ta.array))))")
  
 Stipple.stipple_parse(::Type{TypedArray{T}}, v::Vector) where T = TypedArray(Vector{T}(v))
 
