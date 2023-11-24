@@ -24,6 +24,10 @@ end
 Base.setindex!(x::TypedArray, args...) = Base.setindex!(x.array, args...)
 Base.getindex(x::TypedArray, args...) = Base.getindex!(x.array, args...)
 
+Base.convert(::Type{TypedArray}, v::AbstractVector{T}) where T = TypedArray{T}(convert(Vector{T}, v))
+Base.convert(::Type{T}, ta::TypedArray) where T <: Union{AbstractVector, TypedArray}  = convert(T, ta.array)
+Base.convert(::Type{TypedArray{T1}}, v::AbstractVector{T2}) where {T1, T2} = TypedArray{T1}(convert(Vector{T1}, v))
+
 Stipple.render(ta::TypedArray{T}) where T = LittleDict(:typedArray => T, :array => ta.array)
 Stipple.render(ta::TypedArray{T}) where T <: Int64 = LittleDict(:typedArray => T, :array => string.(ta.array))
 Stipple.render(ta::TypedArray{T}) where T <: UInt64 = LittleDict(:typedArray => T, :array => string.(reinterpret(Int64, ta.array)))
