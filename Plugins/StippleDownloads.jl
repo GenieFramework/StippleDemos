@@ -38,16 +38,16 @@ function download_binary(model::ReactiveModel, js_data::JSONText, filename)
     run(model::ReactiveModel, js_download(js_data.s, filename, MIME("application/octet-stream")))
 end
 
-function download_binary(model::ReactiveModel, field::Symbol, filename, array_type = UInt8)
+function download_binary(model::ReactiveModel, field::Symbol, filename, array_type::Type{<:Real} = UInt8)
     big = array_type <: Union{UInt64, Int64} ? ".map(String)" : ""
     download_binary(
         model,
-        JSONText("this.$field instanceof Array ? $(type_dict[array_type]).from(this.$field$big) : this.$field"),
+        JSONText("this.$field instanceof Array ? $(get(type_dict, array_type, UInt8)).from(this.$field$big) : this.$field"),
         filename
     )
 end
 
-function download_binary(model, data, filename = "file.bin", array_type = UInt8)
+function download_binary(model, data, filename = "file.bin", array_type::Type{<:Real} = UInt8)
     # we use a model field to send the data, in order to make use of popssibly defined revivers
     push!(model, :__download__ => data, channel = getchannel(model))
     download_binary(model, :__download__, filename, array_type)
