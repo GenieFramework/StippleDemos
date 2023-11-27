@@ -51,7 +51,7 @@ function ui()
               
         row([
             cell(btn("Text File", icon = "download", @click(:download_text), color = "primary", nocaps = true))
-            cell(btn(class = "q-ml-lg", "Excel File", icon = "download", @click(:download_df), color = "primary", nocaps = true))
+            cell(btn(class = "q-ml-lg", "Excel File", icon = "download", @on(:click, :click, :addclient), color = "primary", nocaps = true))
         ])
     ]))
 end
