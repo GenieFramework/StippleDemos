@@ -29,15 +29,13 @@ end
     @in data64 = TypedArray(UInt64[])
     @in text = "The quick brown fox jumped over the ..."
 
-    @in download_df = false
-    @in download_text = false
-
-    @onbutton download_text begin
+    @event download_text begin
         download_text(__model__, :text)
     end
 
-    @onbutton download_df begin
-        download_binary(__model__, df_to_xlsx(table.data), "file.xlsx")
+    @event download_df begin
+        println("hi")
+        download_binary(__model__, df_to_xlsx(table.data), "file.xlsx"; client = event["_client"])
     end
 end
 
@@ -50,8 +48,10 @@ function ui()
         ])
               
         row([
-            cell(btn("Text File", icon = "download", @click(:download_text), color = "primary", nocaps = true))
-            cell(btn(class = "q-ml-lg", "Excel File", icon = "download", @on(:click, :click, :addclient), color = "primary", nocaps = true))
+            cell(col = 1, "Without client info")
+            cell(btn("Text File", icon = "download", @on(:click, :download_text), color = "primary", nocaps = true))
+            cell(col = 1, "With client info")
+            cell(btn(class = "q-ml-lg", "Excel File", icon = "download", @on(:click, :download_df, :addclient), color = "primary", nocaps = true))
         ])
     ]))
 end
