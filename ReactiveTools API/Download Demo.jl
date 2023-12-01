@@ -8,7 +8,6 @@ using XLSX
 import Stipple.opts
 import StippleUI.Tables.table
 
-pushfirst!(LOAD_PATH, joinpath(ENV["USERPROFILE"], ".julia", "dev", "StippleDemos", "Plugins"))
 using StippleTypedArrays
 using StippleDownloads
 
@@ -30,11 +29,12 @@ end
     @in text = "The quick brown fox jumped over the ..."
 
     @event download_text begin
+        # download content of an app variable
         download_text(__model__, :text)
     end
 
     @event download_df begin
-        println("hi")
+        # download an xlsx file that is generated on the fly from an app variable
         download_binary(__model__, df_to_xlsx(table.data), "file.xlsx"; client = event["_client"])
     end
 end
@@ -58,11 +58,4 @@ end
 
 @page("/", ui)
 
-up()
-
-
-# other possible uses:
-
-# download_binary(model, df_to_xlsx(df), "file.xlsx")
-# download_binary(model, df_to_xlsx("Test" => df), "file.xlsx")
-# download_binary(model, df_to_xlsx("HH" => df, "HH2" => df; anchor_cell = XLSX.CellRef("B2")), "file.xlsx")
+up(open_browser = true)

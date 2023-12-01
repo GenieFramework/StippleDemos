@@ -6,8 +6,6 @@ using StippleUI
 import Stipple.opts
 import StippleUI.Tables.table
 
-# the next line might have to be adapted in the future
-pushfirst!(LOAD_PATH, abspath(joinpath(@__DIR__, "..", "Plugins")))
 using StippleTypedArrays
 using StippleDownloads
 
@@ -23,9 +21,9 @@ using StippleDownloads
 
     @onbutton add_data begin
         x = rand(0:255)
-        push!(data.array, x)
+        push!(data, x)
         notify(data)
-        push!(data64.array, x + 1000)
+        push!(data64, x + 1000)
         notify(data64)
     end
 
@@ -41,8 +39,8 @@ function ui()
         row(class = "q-pa-md q-my-lg bg-green-4", "Data64: [{{ data64 }}]")
 
         row([
-            btn("Add data", icon = "download", @click(:add_data), color = "primary", nocaps = true)
-            btn(class = "q-ml-lg", "Clear data", icon = "download", @click(:clear_data), color = "primary", nocaps = true)
+            btn("Add data", icon = "add", @click(:add_data), color = "primary", nocaps = true)
+            btn(class = "q-ml-lg", "Clear data", icon = "delete_forever", @click(:clear_data), color = "primary", nocaps = true)
         ])
     ]))
 end
@@ -53,7 +51,7 @@ route("/") do
     page(model, ui()) |> html
 end
 
-up()
+up(open_browser = true)
 
 
 # other possible uses:
