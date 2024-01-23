@@ -56,6 +56,7 @@ end
     @in colorscheme_options = OhMyREPL.Passes.SyntaxHighlighter.SYNTAX_HIGHLIGHTER_SETTINGS.schemes |> keys
 
     @onchange new_editor begin
+        auto_highlight || return
         code = new_editor |> editor2code
         editor = code |> code2html
     end
