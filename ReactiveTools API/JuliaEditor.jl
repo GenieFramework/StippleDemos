@@ -6,6 +6,8 @@ using Stipple, Stipple.ReactiveTools
 using StippleUI
 using StippleUI.StippleUIParser.EzXML
 
+options = Stipple.opts
+
 
 let x = read(joinpath(dirname(dirname(pathof(ANSIColoredPrinters))), "docs", "src", "assets", "default.css"), String)
     global css
@@ -75,7 +77,7 @@ end
     @onchange colorscheme begin
         colorscheme!(colorscheme)
         auto_highlight || return
-        editor = editor |> editor2code |> format_text |> code2html
+        editor = editor |> editor2code |> code2html
     end
 end
 
