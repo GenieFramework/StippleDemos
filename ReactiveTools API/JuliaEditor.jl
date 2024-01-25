@@ -2,6 +2,7 @@ using OhMyREPL
 using ANSIColoredPrinters
 using JuliaSyntax
 using JuliaFormatter
+
 using Stipple, Stipple.ReactiveTools
 using StippleUI
 using StippleUI.StippleUIParser.EzXML
@@ -10,6 +11,11 @@ options = Stipple.opts
 
 
 let x = read(joinpath(dirname(dirname(pathof(ANSIColoredPrinters))), "docs", "src", "assets", "default.css"), String)
+    x *= """
+    .no-pre-margin .q-editor__content pre {
+        margin: 0
+    }
+    """
     global css
     css() = [style(x)]
 end
@@ -17,7 +23,6 @@ end
 add_css(css)
 
 function OhMyREPL.test_passes(io::IO, rpc::OhMyREPL.PassHandler, str::Union{String, IOBuffer}, cursorpos::Int = 1, cursormovement::Bool = false; indent::Int)
-    b = IOBuffer()
     tokens = tokenize(str)
     OhMyREPL.apply_passes!(rpc, tokens, str, cursorpos, cursormovement)
     OhMyREPL.untokenize_with_ANSI(io, rpc.accum_crayons, tokens, str, indent)
@@ -41,15 +46,16 @@ function code2html(str::String = OhMyREPL.TEST_STR, rpc::OhMyREPL.PassHandler = 
     printer = HTMLPrinter(io)
     io2 = IOBuffer()
     show(io2, "text/html", printer)
-    # print(io2, "hh")
     String(take!(io2))
 end
 
 @app Editor begin
-    @in editor = OhMyREPL.TEST_STR |> code2html
-    @in new_editor = ""
-    @in code = ""
-    @in cursor = Stipple.opts(code = OhMyREPL.TEST_STR, position = 0)
+    @in editor = String(lstrip(OhMyREPL.TEST_STR)) |> code2html
+    @in update_editor = ""
+    @in code = "" # only for debugging
+    @in cursor = Stipple.opts(code = lstrip(OhMyREPL.TEST_STR), position = 0)
+    @in update = false
+    @in undo_mode = true
     @in highlight = false
     @in format = false
     @in auto_highlight = true
@@ -59,29 +65,36 @@ end
 
     @onchange isready notify(colorscheme)
 
-    @onchange new_editor begin
+    @onbutton update begin
+        # println("'", cursor[:code][cursor[:position]-10:cursor[:position]], "'")
         auto_highlight || return
-        code = new_editor |> editor2code
-        editor = code |> code2html
+        code = editor |> editor2code
+        update_editor = code |> code2html
+        # update_editor = cursor[:code] |> code2html
     end
 
     @onbutton highlight begin
+        run(__model__, "this.cursor = this.getCursor()")
         code = editor |> editor2code
-        editor = code |> code2html
+        update_editor = code |> code2html
     end
 
     @onbutton format begin
-        editor = editor |> editor2code |> format_text |> code2html
+        run(__model__, "this.cursor = this.getCursor()")
+         code = editor |> editor2code
+         update_editor = code |> format_text |> code2html
     end
     
     @onchange colorscheme begin
         colorscheme!(colorscheme)
         auto_highlight || return
-        editor = editor |> editor2code |> code2html
+        run(__model__, "this.cursor = this.getCursor()")
+        update_editor = editor |> editor2code |> code2html
     end
 end
 
 @methods Editor [
+    # retrieves the plain text of the editor and the cursor position therein 
     :getCursor => "function () {
         const startNode = this.\$refs.editor.getContentEl()
         const treeWalker = document.createTreeWalker(
@@ -119,7 +132,7 @@ end
                 // Here we compensate for this by checking whether a <br> has been inserted right after the caret range.
                 if (text.length == n) {
                     next_node = treeWalker.nextNode()
-                    // console.log(next_node)
+                    console.debug(next_node)
                     if ((pre > 0) && (next_node) && (next_node.tagName === 'BR')) {
                         n += 1
                         text += '\\n'
@@ -143,6 +156,7 @@ end
     
         let foundText = '';
         let pre = 0;
+        let len = 0;
         let currentNode;
     
         // Iterate through the nodes until the text is found
@@ -154,7 +168,7 @@ end
             } else if (currentNode.tagName === 'PRE') {
                 pre += 1
                 if (pre == 1) { continue }
-                new_text = '\\n'; // Insert a newline character for each <br> node
+                new_text = '\\n'; // Insert a newline character for each <pre> node
             } else {
                 continue
             }
@@ -169,7 +183,6 @@ end
                 range.setStart(currentNode, len);
                 collapsed = true
                 
-                
                 startNode.focus();
                 const selection = window.getSelection();
                 selection.removeAllRanges();
@@ -179,39 +192,76 @@ end
             }
         }
     
-        // If the text is not found, you might want to handle it accordingly
-        console.log('Text not found in contentEditable:', text);
+        // If the text is not found, leave a message ...
+        console.debug('Text not found in contentEditable:', text);
+    }"
+
+    :insertHTML => "function (html) {
+        if (!this.undo_mode) {
+            this.editor = html
+            return
+        }
+        // some string mangling in order to compensate for
+        // the behaviour of the 'insertHTML' command
+        // This may be browser-specific and, therefore, can be disabled
+        // by setting undo_mode = false
+        if (this.editor.startsWith('<pre>') && html.startsWith('<pre>')) {
+            html = html.substring(5, html.length - 6)
+        }
+        if (html.endsWith('\\n')) {
+            html = html.substring(0, html.length - 1)
+        }
+        ce = this.\$refs.editor
+        ce.runCmd('selectAll'); ce.runCmd('insertHTML', html)
+        if (html + '\\n' == this.editor) {
+            this.isChrome = true
+            //ce.runCmd('delete')
+        }
+    }"
+
+    :insertText => "function (html) {
+        ce = this.\$refs.editor
+        ce.runCmd('selectAll'); ce.runCmd('insertText', html)
     }"
 ]
 
+# immediate response to update the editor (no debounce)
 @watch Editor [
-    :editor => "function() {
+    :update_editor => "function(update_editor) {
+        this.insertHTML(update_editor);
         x = this
-        // console.log('editor changed')
+        cursorText = x.cursor.code.substring(0, x.cursor.position)
+        setTimeout(() => {
+            console.debug('resetting cursor to ', '\\'' + cursorText.substring(cursorText.length-10) + '\\'')
+            x.setCaretAtEndOfText(cursorText)
+        }, 50)
+    }"
+]
+
+@mounted Editor "this.\$refs.editor.getContentEl().spellcheck = false"
+
+@created Editor "this.\$watch('editor', _.debounce(function(editor) {
+        x = this
+        console.debug('editor changed')
+        // some delay is necessary, for having an updated caret.range
         setTimeout(function() {
             c = x.getCursor()
-            cursorText = c.code.substring(0, c.position)
-            // console.log(cursorText + ':')
+            cursorText = x.cursor.code.substring(0, x.cursor.position)
+            // if code has changed, save the cursor 
             if (c.code != x.cursor.code) {
-                // console.log('code changed')
-                // console.log('c: ', c.position, ', old: ', x.cursor.position)
+                console.debug('code changed')
                 x.cursor = c
-                x.new_editor = x.editor
+                x.update = true
             } else {
-                // console.log('resetting cursor')
-                // console.log(cursorText + ':')
-                setTimeout(() => { x.setCaretAtEndOfText(cursorText) }, 50)
+                
             }
-        }, 10)
-    }"
-]
-
-
+        }, 50)
+    }, 500))"
 
 ui() = [
     row(cell(class = "st-module", [
         h1("Julia Editor")
-        editor(:editor, id = "ed", ref = "editor", dark = :dark,
+        editor(:editor, id = "ed", ref = "editor", class = "no-pre-margin", dark = :dark,
             toolbar__text__color="white",
             toolbar__toggle__color="yellow-8",
             toolbar__bg="primary",
@@ -237,8 +287,8 @@ ui() = [
 
 route("/") do
     colorscheme!("GitHubLight")
-    global model = @init Editor
-    page(model, ui, debounce = 0) |> html
+    global model = @init Editor debounce = 50
+    page(model, ui) |> html
 end
 
 up(open_browser = true)
