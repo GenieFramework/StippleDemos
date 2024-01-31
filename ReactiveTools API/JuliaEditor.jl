@@ -31,12 +31,14 @@ end
 function editor2code(editor)
     isempty(editor) && return ""
 
-    ed = replace(editor, "<br></div>" => "</div>")
+    ed = replace(editor, "<br></span>" => "</span><br>")
+    ed = replace(ed, "<br></div><div>" => "\n")
     ed = replace(ed, "</div><div>" => "\n")
+    ed = replace(ed, "<br></pre><pre>" => "\n")
     ed = replace(ed, "</pre><pre>" => "\n")
     ed = replace(ed, "<br>" => "\n")
 
-    root =parsehtml(ed).root
+    root = parsehtml(ed).root
     root === nothing ? "" : root.content
 end
 
@@ -108,6 +110,7 @@ end
         let currentNode
         let rangeReached = false
         let pre = 0
+        let br = false
         const range = this.\$refs.editor.caret.range
     
         // Iterate through the nodes until the range is reached
@@ -115,11 +118,13 @@ end
             if (range && currentNode === range.startContainer) { rangeReached = true }
             if (currentNode.nodeType === Node.TEXT_NODE) {
                 new_text = currentNode.nodeValue
+                br = false
             } else if (currentNode.tagName === 'BR') {
                 new_text = '\\n'; // Insert a newline character for each <br> node
+                br = true
             } else if (currentNode.tagName === 'PRE') {
                 pre += 1
-                if (pre == 1) { continue }
+                if (pre == 1 || br){ continue }
                 new_text = '\\n'; // Insert a newline character for each <br> node
             } else {
                 continue
@@ -261,6 +266,7 @@ end
 ui() = [
     row(cell(class = "st-module", [
         h1("Julia Editor")
+
         editor(:editor, id = "ed", ref = "editor", class = "no-pre-margin", dark = :dark,
             toolbar__text__color="white",
             toolbar__toggle__color="yellow-8",
