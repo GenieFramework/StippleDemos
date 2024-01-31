@@ -210,9 +210,11 @@ end
         // the behaviour of the 'insertHTML' command
         // This may be browser-specific and, therefore, can be disabled
         // by setting undo_mode = false
-        if (this.editor.startsWith('<pre>') && html.startsWith('<pre>')) {
-            html = html.substring(5, html.length - 6)
-        }
+        //if (this.editor.startsWith('<pre>') && html.startsWith('<pre>')) {
+        //    html = html.substring(5, html.length - 6)
+        //}
+        ce = this.\$refs.editor
+        while (ce.getContentEl().hasChildNodes() && ce.getContentEl().childNodes[0].tagName == 'PRE') {ce.runCmd('selectAll'); ce.runCmd('delete')}
         if (html.endsWith('\\n')) {
             html = html.substring(0, html.length - 1)
         }
