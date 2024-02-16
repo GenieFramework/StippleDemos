@@ -62,7 +62,7 @@ function ui()
                 cell(class = "q-pa-md bg-red-1", raw"""latex(class = "q-pa-md", raw"\tan^2x", display = true)""")
                 cell(class = "bg-green-1 q-pa-md", latex(class = "q-pa-md", raw"\tan^2x", display = true))
             ])
-            bignumber("Wait for 5", :x, color = R"x >= 5 ? 'negative' : 'positive'", icon = "calculate")
+            h3("Wait for 5 - ", ["{{ x }}"], color = R"x >= 5 ? 'negative' : 'positive'", icon = "calculate")
             
             row([
                 cell(class = "q-pa-md bg-red-1", raw"""cell(class = "q-pa-md", @latex(raw"\tanh^2 y", display = R"x >= 5"))""")
@@ -85,7 +85,7 @@ function ui()
 end
 
 route("/") do
-    page(@init(), ui()) |> html
+    page(@init, ui) |> html
 end
     
 up()
