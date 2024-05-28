@@ -1,9 +1,13 @@
+# Server-side resampling with `@mixin`
+# this approach comes in handy if you have more than one plot that should be resampled
+# Stipple v0.30.5 required or line 130 must replaced by line 132
+
 using Stipple, Stipple.ReactiveTools
 using StippleUI
 using StipplePlotly
 using PlotlyBase
-using Statistics: mean
 
+import Statistics: mean
 import Stipple: opts
 
 const PBLayout = PlotlyBase.Layout
@@ -112,52 +116,59 @@ function lttb(trace::AbstractTrace, layout::PBLayout, threshold::Int)
     lttb!(deepcopy(trace), layout, threshold)
 end
 
-@app begin
-    @private range = Float64[]
-    @private rawdata = GenericTrace[]
+# definition of an app to be used as a mixin
+@app PlotResampled begin
+    @private _range = Float64[]
+    @private _rawdata = GenericTrace[]
 
-    @in resolution = 1000
-    @out data = GenericTrace[]
-    @in layout::PBLayout = PBLayout(xaxis_range = Float64[], title = "Server-side resampling")
+    @in _resolution = 1000
+    @out _data = GenericTrace[]
+    @in _layout::PBLayout = PBLayout()
+end
+
+@app begin
+    @mixin plot::PlotResampled(_layout = PBLayout(xaxis_range = Float64[], title = "Server-side resampling"))
+    # next line is for Stipple < v0.30.5
+    # @mixin plot::PlotResampled!(_layout = PBLayout(xaxis_range = Float64[], title = "Server-side resampling"))
 
     @onchange isready begin
         xx1 = 0:0.01:1500
         xx2 = 0:0.015:1500
-        rawdata = [
+        plot_rawdata = [
             scatter(x = xx1, y = sin.(xx1), mode = "markers", line_color = "darkblue")
             scatter(x = xx2, y = 1 .+ cos.(xx2), mode = "markers", line_color = "orange")
         ]
     end
 
-    @onchange resolution begin
-        range = []
-        notify(layout)
+    @onchange plot_resolution begin
+        plot_range = []
+        notify(plot_layout)
     end
 
-    @onchange rawdata begin
-        range = []
+    @onchange plot_rawdata begin
+        plot_range = []
         # autorange if new data is added
-        layout[:xaxis_autorange] = true
+        plot_layout[:xaxis_autorange] = true
         # alternatively uncomment the next line to just replace the data with the current range
         # notify(layout)
     end
     
-    @onchange layout begin
-        range == layout[:xaxis_range] && return
-        autorange = get(layout, :xaxis_autorange, true)
-        x = [lttb(rd, autorange ? nothing : layout, resolution) for rd in rawdata]
+    @onchange plot_layout begin
+        plot_range == plot_layout[:xaxis_range] && return
+        autorange = get(plot_layout, :xaxis_autorange, true)
+        x = [lttb(rd, autorange ? nothing : plot_layout, plot_resolution) for rd in plot_rawdata]
         # if data already identical don't replace in order to avoid loops
-        x != data && (data = x)
-        range = layout[:xaxis_range]
+        x != plot_data && (plot_data = x)
+        plot_layout[:xaxis_range] isa Vector && (plot_range = plot_layout[:xaxis_range])
     end
 end
 
 # set reaction time for layout faster than the default 300ms
-@debounce layout 10
+@debounce plot_layout 10
 
 ui() = [
-    plot(:data, layout = :layout)
-    btntoggle(class = "q-ml-md", :resolution, options = [opts(label = "$v", value = v) for v in (100, 250, 500, 1000, 5000)], color = "blue-5", toggle__color = "blue-10")
+    plot(:plot_data, layout = :plot_layout)
+    btntoggle(class = "q-ml-md", :plot_resolution, options = [opts(label = "$v", value = v) for v in (100, 250, 500, 1000, 5000)], color = "blue-5", toggle__color = "blue-10")
 ]
 
 @page("/", ui)
