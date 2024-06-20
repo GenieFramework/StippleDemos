@@ -1,0 +1,8 @@
+[deps]
+Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+Electron = "a1bb12fb-d4d1-54b4-b10a-ee7951ef7ad3"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
+StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
+VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"

@@ -1,3 +1,5 @@
+module CameraWidget
+
 # WebCam: Camera Widget
 # - uses VideoIO for determination of camera names and format
 # - camera can be deactivated to allow for access from other video software
@@ -8,15 +10,17 @@
 # - model.fps = 0 together with model.updatemode = "webchannel" will update as fast as possible
 # - this is the new default, so please provide model.fps > 0 in "url" updatemode.
 
+export camerawidget
+
 using Stipple
 using StippleUI
 using HTTP
 using FileIO
 using VideoIO
 using Electron
-using JSON
 
 import VideoIO.FFMPEG.ffmpeg
+import Genie.Requests: payload
 
 using Base64: base64encode
 base64png(png) = "data:image/png;base64,$(base64encode(png))"
@@ -151,6 +155,7 @@ Stipple.js_watch(model::WebCam) = """
 function handlers(model)
     on(model.isready) do isready
         isready || return
+        push!(model)
         model.cameraon[] = true
     end
 
@@ -175,7 +180,7 @@ end
 
 function ui(model)
     page(model, [      
-            p(quasar(:img, "", src=:image, :basic, style="
+            p(imageview("", src=:image, no__transition=true, basic = true, style="
                 -webkit-app-region: drag;
                 border-radius: 50%;
                 width: 95vw;
@@ -194,28 +199,6 @@ end
 # for debugging:
 # ElectronAPI.reload(win)
 
-route("/") do
-    init(WebCam, debounce = 0) |> handlers |> ui |> html
-end
-
-route("/requestmode") do
-    model = init(WebCam, debounce = 0)
-    model.updatemode = "requestmode"
-    model.fps = 15
-    model |> handlers |> ui |> html
-end
-
-t0 = now()
-route("frame/:camera/:timestamp") do
-    # for performance measurement uncomment the following lines
-    # global t0
-    # println("                                                  fps: ", 1000 / (now() - t0).value)
-    # t0 = now()
-    HTTP.Messages.Response(200, CAMERAS[payload(:camera)].img)
-end
-
-up(PORT)
-
 function camerawidget()
     win = Window(URI("http://localhost:$PORT"), options = Dict(
         "transparent" => true,
@@ -229,14 +212,14 @@ function camerawidget()
     # initialize `oldSize`, `width` and `height`
     wsize = ElectronAPI.getSize(win)
     run(win.app, """
-        oldSize = $(JSON.json(wsize))
+        oldSize = $(json(wsize))
         width = oldSize[0]
         height = oldSize[1]
     """)
     
     # implement auto resize on dragging of the side handles
     # resizing by the edge handles works only poorly
-    ElectronAPI.on(win, "resize", JSON.JSONText("""function() {
+    ElectronAPI.on(win, "resize", JSONText("function() {
         win = electron.BrowserWindow.fromId($(win.id))
         newSize = win.getSize()
 
@@ -255,8 +238,37 @@ function camerawidget()
         
         oldSize = [width, height]
         win.setSize(width, height)
-    }"""))
+    }"))
     win
 end
 
-win = camerawidget()
+function __init__()
+    t0 = now()
+
+    route("/") do
+        init(WebCam, debounce = 0) |> handlers |> ui |> html
+    end
+    
+    route("/requestmode") do
+        model = init(WebCam, debounce = 0)
+        model.updatemode[] = "requestmode"
+        model.fps[] = 10
+        model |> handlers |> ui |> html
+    end
+    
+    route("frame/:camera/:timestamp") do
+        # for performance measurement uncomment the following lines
+        # global t0
+        # println("                                                  fps: ", 1000 / (now() - t0).value)
+        # t0 = now()
+        cam_id = parse(UInt64, payload(:camera))
+        HTTP.Messages.Response(200, CAMERAS[cam_id].img)
+    end
+
+    port = get(ENV, "CAMERA_PORT", PORT)
+    up(port)
+
+    win = camerawidget()
+end
+
+end # module
