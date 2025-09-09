@@ -53,8 +53,10 @@ function js_requestpushdownload()
     """
 end
 
+# there's also a Quasar method to copy to clipboard, which can be brought into scope
+# by `js_mounted()`
 function js_copytoclipboard()
-    """
+    js"""
     copyToClipboard: function(str) {
         const el = document.createElement('textarea');  // Create a <textarea> element
         el.value = str;                                 // Set its value to the string that you want copied
