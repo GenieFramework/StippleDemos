@@ -7,5 +7,5 @@ StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 [compat]
 Genie = "5.23.2"
 Stipple = "0.27.22"
-StippleUI "0.22.10"
+StippleUI = "0.22.10"
 StippleMathjs = "0.1.0"
