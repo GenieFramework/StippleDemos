@@ -1,3 +1,7 @@
+module JuliaEditor
+
+using Dates
+
 using OhMyREPL
 using ANSIColoredPrinters
 using JuliaSyntax
@@ -9,6 +13,8 @@ using StippleUI.StippleUIParser.EzXML
 
 options = Stipple.opts
 
+UI = Ref(ParsedHTMLString[])
+ui() = UI[]
 
 let x = read(joinpath(dirname(dirname(pathof(ANSIColoredPrinters))), "docs", "src", "assets", "default.css"), String)
     x *= """
@@ -22,7 +28,7 @@ end
 
 add_css(css)
 
-function OhMyREPL.test_passes(io::IO, rpc::OhMyREPL.PassHandler, str::Union{String, IOBuffer}, cursorpos::Int = 1, cursormovement::Bool = false; indent::Int)
+function test_passes(io::IO, rpc::OhMyREPL.PassHandler, str::Union{String, IOBuffer}, cursorpos::Int = 1, cursormovement::Bool = false; indent::Int)
     tokens = tokenize(str)
     OhMyREPL.apply_passes!(rpc, tokens, str, cursorpos, cursormovement)
     OhMyREPL.untokenize_with_ANSI(io, rpc.accum_crayons, tokens, str, indent)
@@ -44,7 +50,7 @@ end
 
 function code2html(str::String = OhMyREPL.TEST_STR, rpc::OhMyREPL.PassHandler = OhMyREPL.PASS_HANDLER)
     io = IOBuffer()
-    OhMyREPL.test_passes(io, rpc, str, 0, false, indent = 0)
+    test_passes(io, rpc, str, 0, false, indent = 0)
     printer = HTMLPrinter(io)
     io2 = IOBuffer()
     show(io2, "text/html", printer)
@@ -55,7 +61,7 @@ end
     @in editor = String(lstrip(OhMyREPL.TEST_STR)) |> code2html
     @in update_editor = ""
     @in code = "" # only for debugging
-    @in cursor = Stipple.opts(code = lstrip(OhMyREPL.TEST_STR), position = 0)
+    @in cursor = OrderedDict(:code => lstrip(OhMyREPL.TEST_STR), :position => 0)
     @in update = false
     @in undo_mode = true
     @in highlight = false
@@ -65,8 +71,13 @@ end
     @in colorscheme = "GitHubLight"
     @in colorscheme_options = OhMyREPL.Passes.SyntaxHighlighter.SYNTAX_HIGHLIGHTER_SETTINGS.schemes |> keys
 
-    @onchange isready notify(colorscheme)
+    @onchange isready begin
+        notify(colorscheme)
 
+        t_final = now() - DateTime(ENV["t"])
+        println(t_final)
+    end
+    
     @onbutton update begin
         # println("'", cursor[:code][cursor[:position]-10:cursor[:position]], "'")
         auto_highlight || return
@@ -265,26 +276,26 @@ end
         }, 50)
     }, 500))"
 
-ui() = [
+UI[] = [
     row(cell(class = "st-module", [
-        h1("Julia Editor")
+        h4("Julia Editor")
 
         editor(:editor, id = "ed", ref = "editor", class = "no-pre-margin", dark = :dark,
             toolbar__text__color="white",
             toolbar__toggle__color="yellow-8",
-            toolbar__bg="primary",
+            toolbar__bg="blue-9",
             toolbar = [
                 ["token"]
             ],
             [template(var"v-slot:token"=true, row(class = "text-white", [
                 row(class = "", btntoggle(:dark, class = "q-mx-none", size = "sm", "",
                     options = [options(label = "dark", value = true), options(label = "light", value = false)],
-                    :push, :glossy, toggle__color = "secondary"
+                    :push, :glossy, toggle__color = "blue-3"
                 ))
-                Stipple.select(style = "max-width: 20em; color: rgb(255, 255, 255)", :colorscheme, options = :colorscheme_options, "",
+                Stipple.select(style = "max-width: 20em", :colorscheme, options = :colorscheme_options, "",
                     :dense, :options__dense, :filled, dark = true
                 )
-                toggle("auto highlight", :auto_highlight, dark = :dark, size = "sm", color = "secondary")
+                toggle("auto highlight", :auto_highlight, dark = :dark, size = "sm", color = "blue-3")
                 btn("format", @click(:format), :glossy, size = "sm")
                 btn("highlight", @click(:highlight), :glossy, @if("(!auto_highlight)"), size = "sm")
             ]))]
@@ -293,10 +304,15 @@ ui() = [
     ]))
 ]
 
-route("/") do
-    colorscheme!("GitHubLight")
-    global model = @init Editor debounce = 50
-    page(model, ui) |> html
+function __init__()
+    # Main.t0 = now()
+    route("/") do
+        colorscheme!("GitHubLight")
+        global model = @init Editor debounce = 50
+        page(model, ui, model = Editor) |> html
+    end
+
+    up(open_browser = true)
 end
 
-up(open_browser = true)
+end
