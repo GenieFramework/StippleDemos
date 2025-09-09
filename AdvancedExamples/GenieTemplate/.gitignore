@@ -1,0 +1,8 @@
+.DS_Store
+/dev/
+.tags
+.DS_Store
+.vscode
+.theme
+test/build
+Manifest.toml
