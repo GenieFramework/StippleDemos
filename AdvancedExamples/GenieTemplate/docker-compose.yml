@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  genietemplate:
+    build: .
+    image: genietemplate   # 👈 sets image name explicitly
+    container_name: genietemplate
+    ports:
+      - "8000:8000"
