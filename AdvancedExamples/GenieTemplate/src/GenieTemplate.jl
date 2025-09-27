@@ -237,9 +237,9 @@ ui() = UI
 
 home::Route = route("/") do
     core_theme = false
-    global model = @init(MyApp; core_theme = false)
+    global model = @init(MyApp; core_theme)
     
-    page(model, ui; core_theme = false) |> html
+    page(model, ui; core_theme) |> html
 end
 
 gpl_css() = [style("""
@@ -306,7 +306,7 @@ function __init__()
 
     route(home)
     add_css(gpl_css)
-    add_css(googlefonts_css)
+    add_css(local_material_fonts)
 end
 
 # -----------  precompilation -------------
