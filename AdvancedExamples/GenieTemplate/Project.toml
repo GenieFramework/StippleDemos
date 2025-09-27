@@ -3,12 +3,14 @@ uuid = "517c2230-ce2a-4999-9724-3dc2979a75a3"
 version = "0.1.0"
 
 [deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
 StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
+Dates = "1.11.0"
 Genie = "5.33.10"
 Logging = "1.11.0"
 Stipple = "0.28.14 - 0.31"

@@ -4,5 +4,6 @@
 .DS_Store
 .vscode
 .theme
+build/
 test/build
 Manifest.toml

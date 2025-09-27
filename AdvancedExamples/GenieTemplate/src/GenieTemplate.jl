@@ -2,15 +2,26 @@ module GenieTemplate
 
 using Stipple, Stipple.ReactiveTools
 using StippleUI
+using Dates
 
 import Genie.Router.Route
 import Genie.Generator.Logging
 import Stipple.opts
 
+t_startup::DateTime = DateTime(0)
+
 @app MyApp begin
     @in x = 1.0
     @in search = ""
     @in storage = 0.26
+
+    @onchange isready begin
+        global t_startup
+        if t_startup != DateTime(0)
+            @info "Startup time: $(now() - t_startup)"
+            t_startup = DateTime(0)
+        end
+    end
 end
 
 function myheader()
@@ -147,7 +158,7 @@ function leftMenu()
     )
 end
 
-UI = [
+UI::Vector{Genie.Renderer.Html.ParsedHTMLString} = [
     StippleUI.layout(view = "lHh Lpr fff", class = "bg-grey-1", [
         myheader(),
         mydrawer(),
@@ -231,17 +242,6 @@ home::Route = route("/") do
     page(model, ui; core_theme = false) |> html
 end
 
-function __init__()
-    cd(@project_path)
-    Stipple.Genie.Loader.loadenv(context = @__MODULE__)
-    up()
-
-    route(home)
-    add_css(gpl_css)
-    add_css(googlefonts_css)
-end
-
-
 gpl_css() = [style("""
 .GPL__toolbar {
   height: 64px;
@@ -293,5 +293,35 @@ gpl_css() = [style("""
   }
 }""")
 ]
+
+# -----------  app init -------------
+
+function __init__()
+    global t_startup = now()
+    cd(@project_path)
+    Genie.config.path_build = @project_path "build"
+
+    Stipple.Genie.Loader.loadenv(context = @__MODULE__)
+    up()
+
+    route(home)
+    add_css(gpl_css)
+    add_css(googlefonts_css)
+end
+
+# -----------  precompilation -------------
+
+import Stipple: Genie.Assets.asset_path
+
+@stipple_precompile begin
+    context = @__MODULE__
+    Genie.config.path_build = @project_path "build"
+    Genie.Loader.loadenv(; context)
+
+    @init(MyApp; core_theme = false)
+    route(home)
+    precompile_get("/")
+    precompile_get(asset_path(MyApp))
+end
 
 end # module
