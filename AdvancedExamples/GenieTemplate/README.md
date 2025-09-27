@@ -20,6 +20,10 @@ julia> cd("path/to/GenieTemplate")
 (@v1.11) pkg> activate .
 julia> using GenieTemplate
 ```
+or for measurement of startup time (displayed at the REPL)
+```julia-repl
+julia> using GenieTemplate; GenieTemplate.Genie.Server.openbrowser("http://localhost:8000")
+```
 or outside of Julia via
 ```sh
 julia --project=path/to/GenieTemplate -e "using GenieTemplate; wait(Condition())"
