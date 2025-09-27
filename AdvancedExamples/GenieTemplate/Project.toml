@@ -10,9 +10,9 @@ Stipple = "4acbeb90-81a0-11ea-1966-bdaff8155998"
 StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
-Dates = "1.11.0"
+Dates = "1.6"
 Genie = "5.33.10"
-Logging = "1.11.0"
+Logging = "1.6"
 Stipple = "0.28.14 - 0.31"
 StippleUI = "0.24.13"
 Test = "1.6"
