@@ -39,7 +39,7 @@ function Base.wait(::Val{Genie}; start_msg::String="Press Ctrl/Cmd+C to interrup
     try
         isempty(start_msg) || println("\n$start_msg")
         while true
-            sleep(1)             # interruptible
+            sleep(0.5)             # interruptible
         end
     catch e
         if e isa InterruptException
@@ -344,8 +344,8 @@ function __init__()
     global t_startup = now()
     cd(@project_path)
     Genie.config.path_build = @project_path "build"
-
-    Stipple.Genie.Loader.loadenv(context = @__MODULE__)
+    Genie.Loader.loadenv(; context = @__MODULE__)
+    
     up()
 
     add_css(gpl_css)
@@ -362,7 +362,11 @@ import Stipple: Genie.Assets.asset_path
 @stipple_precompile begin
     context = @__MODULE__
     Genie.config.path_build = @project_path "build"
-    Genie.Loader.loadenv(; context)
+    let showbanner = parse(Bool, get!(ENV, "GENIE_BANNER", "true"))
+        ENV["GENIE_BANNER"] = false
+        Genie.Loader.loadenv(; context)
+        ENV["GENIE_BANNER"] = showbanner
+    end
 
     @init(MyApp; core_theme = false)
     route(home)
