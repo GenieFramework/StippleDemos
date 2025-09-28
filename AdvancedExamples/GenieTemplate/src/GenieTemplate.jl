@@ -38,8 +38,8 @@ function Base.wait(::Val{Genie}; start_msg::String="Press Ctrl/Cmd+C to interrup
     Base.exit_on_sigint(false)   # don’t kill process immediately on Ctrl-C
     try
         isempty(start_msg) || println("\n$start_msg")
-        while true
-            sleep(0.5)             # interruptible
+        Base.isinteractive() ? wait(Condition()) : while true
+            sleep(0.5)  # interruptible version for non-interactive sessions
         end
     catch e
         if e isa InterruptException
