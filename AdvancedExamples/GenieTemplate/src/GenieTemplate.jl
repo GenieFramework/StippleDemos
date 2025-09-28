@@ -4,9 +4,53 @@ using Stipple, Stipple.ReactiveTools
 using StippleUI
 using Dates
 
+import Stipple.opts
 import Genie.Router.Route
 import Genie.Generator.Logging
-import Stipple.opts
+import Genie.Assets.asset_path
+import Genie.Server.openbrowser
+
+export openbrowser, @wait
+
+function openbrowser()
+    if ! parse(Bool, get(ENV, "DOCKER", "false"))
+        port = Genie.config.server_port
+        url = "http://localhost:$(port)"
+        openbrowser(url)
+    end
+end
+
+macro wait()
+    :(Base.wait(Val(Genie), exit_msg = "$($__module__) stopped."))
+end
+
+macro wait(exit_msg)
+    :(Base.wait(Val(Genie), exit_msg = $exit_msg))
+end
+
+macro wait(start_msg, exit_msg)
+    :(Base.wait(Val(Genie), start_msg = $start_msg, exit_msg = $exit_msg))
+end
+
+function Base.wait(::Val{Genie}; start_msg::String="Press Ctrl/Cmd+C to interrupt.", exit_msg::String="Genie stopped.")
+    Base.isinteractive() && "serve" ∉ ARGS || "noserve" ∈ ARGS && return
+    
+    Base.exit_on_sigint(false)   # don’t kill process immediately on Ctrl-C
+    try
+        isempty(start_msg) || println("\n$start_msg")
+        while true
+            sleep(1)             # interruptible
+        end
+    catch e
+        if e isa InterruptException
+            isempty(exit_msg) || println("\n$exit_msg\n")
+        else
+            rethrow()
+        end
+    finally
+        Base.exit_on_sigint(! Base.isinteractive())  # restore default behavior
+    end
+end
 
 t_startup::DateTime = DateTime(0)
 
@@ -304,9 +348,11 @@ function __init__()
     Stipple.Genie.Loader.loadenv(context = @__MODULE__)
     up()
 
-    route(home)
     add_css(gpl_css)
     add_css(local_material_fonts)
+
+    route(home)
+    @wait
 end
 
 # -----------  precompilation -------------
