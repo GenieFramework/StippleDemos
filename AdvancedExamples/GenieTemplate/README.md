@@ -34,16 +34,16 @@ julia> using GenieTemplate
 ```
 or for measurement of startup time (displayed at the REPL)
 ```julia-repl
-julia> using GenieTemplate; GenieTemplate.Genie.Server.openbrowser("http://localhost:8000")
+julia> using GenieTemplate; openbrowser()
 ```
 or outside of Julia via
 ```sh
-julia --project=path/to/GenieTemplate -e "using GenieTemplate; wait(Condition())"
+julia --project=path/to/GenieTemplate -e "using GenieTemplate; @wait"
 ```
 
 There's also a helper script `app.jl` that starts the app, so that
 ```shell
-julia --project app.jl serve
+julia --project app.jl
 ```
 will start serving the app.
 

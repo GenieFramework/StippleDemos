@@ -21,7 +21,7 @@ function openbrowser()
 end
 
 macro wait()
-    :(Base.wait(Val(Genie), exit_msg = "$($__module__) stopped."))
+    :(Base.wait(Val(Genie)))
 end
 
 macro wait(exit_msg)
@@ -32,13 +32,16 @@ macro wait(start_msg, exit_msg)
     :(Base.wait(Val(Genie), start_msg = $start_msg, exit_msg = $exit_msg))
 end
 
-function Base.wait(::Val{Genie}; start_msg::String="Press Ctrl/Cmd+C to interrupt.", exit_msg::String="Genie stopped.")
-    Base.isinteractive() && "serve" ∉ ARGS || "noserve" ∈ ARGS && return
+function Base.wait(::Val{Genie};
+    start_msg::String="Press Ctrl/Cmd+C to interrupt.",
+    exit_msg::String="$(basename(dirname(Base.active_project()))) stopped."
+)
+    (Base.isinteractive() && "serve" ∉ ARGS || "noserve" ∈ ARGS) && return
     
     Base.exit_on_sigint(false)   # don’t kill process immediately on Ctrl-C
     try
-        isempty(start_msg) || println("\n$start_msg")
-        Base.isinteractive() ? wait(Condition()) : while true
+        isempty(start_msg) || println("\n$start_msg\n")
+        while true
             sleep(0.5)  # interruptible version for non-interactive sessions
         end
     catch e
@@ -48,7 +51,8 @@ function Base.wait(::Val{Genie}; start_msg::String="Press Ctrl/Cmd+C to interrup
             rethrow()
         end
     finally
-        Base.exit_on_sigint(! Base.isinteractive())  # restore default behavior
+        sleep(0.1)
+        Base.isinteractive() || Base.exit_on_sigint(true)  # restore default behavior
     end
 end
 
@@ -345,14 +349,14 @@ function __init__()
     cd(@project_path)
     Genie.config.path_build = @project_path "build"
     Genie.Loader.loadenv(; context = @__MODULE__)
-    
     up()
 
     add_css(gpl_css)
     add_css(local_material_fonts)
 
     route(home)
-    @wait
+    "openbrowser" ∈ ARGS && openbrowser()
+    # @wait, interferes with GenieSession, needs to be placed outside __init__
 end
 
 # -----------  precompilation -------------
