@@ -3,8 +3,9 @@ module GenieTemplate
 using Stipple, Stipple.ReactiveTools
 using StippleUI
 using Dates
+HTTP::Module = Genie.HTTPUtils.HTTP
 
-import Stipple.opts
+import Stipple: opts, hget
 import Genie.Router.Route
 import Genie.Generator.Logging
 import Genie.Assets.asset_path
@@ -12,48 +13,40 @@ import Genie.Server.openbrowser
 
 export openbrowser, @wait
 
-function openbrowser()
-    if ! parse(Bool, get(ENV, "DOCKER", "false"))
-        port = Genie.config.server_port
-        url = "http://localhost:$(port)"
-        openbrowser(url)
-    end
+function get_channel(s::String)
+    match(r"\(\) => window.create[^']+'([^']+)'", s).captures[1]
 end
 
-macro wait()
-    :(Base.wait(Val(Genie)))
-end
+global websocket::Union{Nothing, HTTP.WebSockets.WebSocket} = nothing
 
-macro wait(exit_msg)
-    :(Base.wait(Val(Genie), exit_msg = $exit_msg))
-end
-
-macro wait(start_msg, exit_msg)
-    :(Base.wait(Val(Genie), start_msg = $start_msg, exit_msg = $exit_msg))
-end
-
-function Base.wait(::Val{Genie};
-    start_msg::String="Press Ctrl/Cmd+C to interrupt.",
-    exit_msg::String="$(basename(dirname(Base.active_project()))) stopped."
+function ws_send(messages = String[], payloads::Array{<:AbstractDict} = fill(Dict());
+    verbose::Bool = true,
+    host::String = "localhost",
+    port::Int = Genie.config.server_port,
+    channel = get_channel(hget("/"))
 )
-    (Base.isinteractive() && "serve" ∉ ARGS || "noserve" ∈ ARGS) && return
-    
-    Base.exit_on_sigint(false)   # don’t kill process immediately on Ctrl-C
-    try
-        isempty(start_msg) || println("\n$start_msg\n")
-        while true
-            sleep(0.5)  # interruptible version for non-interactive sessions
-        end
-    catch e
-        if e isa InterruptException
-            isempty(exit_msg) || println("\n$exit_msg\n")
-        else
-            rethrow()
-        end
-    finally
-        sleep(0.1)
-        Base.isinteractive() || Base.exit_on_sigint(true)  # restore default behavior
+    pushfirst!(messages, "subscribe")
+    push!(messages, "unsubscribe")
+    if payloads isa Vector
+        pushfirst!(payloads, Dict())
+        push!(payloads, Dict())
     end
+    HTTP.WebSockets.open("ws://$host:$port") do ws
+        messages = Dict.("channel" => channel, "message" .=> messages, "payload" .=> payloads)
+        for msg in messages
+            HTTP.WebSockets.send(ws, json(msg))
+        end
+
+        for msg in ws
+            verbose && println("Received: $msg")
+            if msg == "Unsubscription: OK"
+                sleep(0.1)
+                close(ws)
+                break
+            end
+        end
+    end
+    nothing
 end
 
 t_startup::DateTime = DateTime(0)
@@ -376,6 +369,8 @@ import Stipple: Genie.Assets.asset_path
     route(home)
     precompile_get("/")
     precompile_get(asset_path(MyApp))
+    precompile_get(asset_path(StippleUI.assets_config, :css, file = "quasar.prod"))
+    ws_send(; port)
 end
 
 end # module
