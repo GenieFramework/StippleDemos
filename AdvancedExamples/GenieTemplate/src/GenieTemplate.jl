@@ -10,11 +10,17 @@ import Genie.Router.Route
 import Genie.Generator.Logging
 import Genie.Assets.asset_path
 import Genie.Server.openbrowser
+import Genie.Util: @wait
 
 export openbrowser, @wait
 
 function get_channel(s::String)
     match(r"\(\) => window.create[^']+'([^']+)'", s).captures[1]
+end
+
+function get_channel(::Nothing)
+    @warn "No channel found in the HTML, using default channel '/'"
+    "____"
 end
 
 global websocket::Union{Nothing, HTTP.WebSockets.WebSocket} = nothing
@@ -39,7 +45,7 @@ function ws_send(messages = String[], payloads::Array{<:AbstractDict} = fill(Dic
 
         for msg in ws
             verbose && println("Received: $msg")
-            if msg == "Unsubscription: OK"
+            if msg == "Unsubscription: OK" || contains(msg, "ERROR")
                 sleep(0.1)
                 close(ws)
                 break
@@ -357,6 +363,7 @@ end
 import Stipple: Genie.Assets.asset_path
 
 @stipple_precompile begin
+    println("Precompiling app...")
     context = @__MODULE__
     Genie.config.path_build = @project_path "build"
     let showbanner = parse(Bool, get!(ENV, "GENIE_BANNER", "true"))
@@ -367,10 +374,14 @@ import Stipple: Genie.Assets.asset_path
 
     @init(MyApp; core_theme = false)
     route(home)
-    precompile_get("/")
+    channel = get_channel(precompile_get("/").body |> String)
     precompile_get(asset_path(MyApp))
     precompile_get(asset_path(StippleUI.assets_config, :css, file = "quasar.prod"))
-    ws_send(; port)
+    println("""
+        Precompiling WebSocket connection...
+        Please ignore a potential timeout warning!
+    """)
+    ws_send(; port, channel)
 end
 
 end # module

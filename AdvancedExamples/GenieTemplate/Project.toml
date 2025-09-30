@@ -11,9 +11,9 @@ StippleUI = "a3c5d34a-b254-4859-a8fa-b86abb7e84a3"
 
 [compat]
 Dates = "1.6"
-Genie = "5.33.10"
+Genie = "5.33.15"
 Logging = "1.6"
-Stipple = "0.28.14 - 0.31"
+Stipple = "0.31"
 StippleUI = "0.24.13"
 Test = "1.6"
 julia = "1.6"
