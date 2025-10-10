@@ -9,11 +9,11 @@ write(joinpath(pwd(), "test.csv"), "a,b\n1,2\n10,11")
 @handlers begin
     @out message = ""
     @private df = DataFrame()
-    @out! table = DataTable()
+    @out! tbl = DataTable()
     @onchange isready begin
         @show "App is loaded"
     end
-    @onchange df table = DataTable(df)
+    @onchange df tbl = DataTable(df)
 end
 
 @event :uploaded begin
@@ -54,7 +54,7 @@ function ui()
 
         btn(class = "q-mt-lg", "Clear Log", color = "primary", @on(:click, :clear))
 
-        table(class = "q-mt-lg", :table)
+        table(class = "q-mt-lg", :tbl)
     ] |> join
 end
 
