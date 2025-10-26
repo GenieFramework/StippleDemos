@@ -1,5 +1,22 @@
 module GenieTemplate
 
+# load the Genie environment first so that all other modules can be properly initialized
+module GenieEnvLoader
+    using Genie, Dates
+    t_startup::DateTime = DateTime(0)
+        
+    function __init__()
+        global t_startup = now()
+        cd(@project_path)
+        Genie.config.path_build = @project_path "build"
+        Genie.Loader.loadenv(; context = @__MODULE__)
+        up()
+    end
+end
+
+import .GenieEnvLoader.t_startup
+
+using Stipple.ModelStorage.Sessions.GenieSession
 using Stipple, Stipple.ReactiveTools
 using StippleUI
 using Dates
@@ -14,49 +31,6 @@ import Genie.Util: @wait
 
 export openbrowser, @wait
 
-function get_channel(s::String)
-    match(r"\(\) => window.create[^']+'([^']+)'", s).captures[1]
-end
-
-function get_channel(::Nothing)
-    @warn "No channel found in the HTML, using default channel '/'"
-    "____"
-end
-
-global websocket::Union{Nothing, HTTP.WebSockets.WebSocket} = nothing
-
-function ws_send(messages = String[], payloads::Array{<:AbstractDict} = fill(Dict());
-    verbose::Bool = true,
-    host::String = "localhost",
-    port::Int = Genie.config.server_port,
-    channel = get_channel(hget("/"))
-)
-    pushfirst!(messages, "subscribe")
-    push!(messages, "unsubscribe")
-    if payloads isa Vector
-        pushfirst!(payloads, Dict())
-        push!(payloads, Dict())
-    end
-    HTTP.WebSockets.open("ws://$host:$port") do ws
-        messages = Dict.("channel" => channel, "message" .=> messages, "payload" .=> payloads)
-        for msg in messages
-            HTTP.WebSockets.send(ws, json(msg))
-        end
-
-        for msg in ws
-            verbose && println("Received: $msg")
-            if msg == "Unsubscription: OK" || contains(msg, "ERROR")
-                sleep(0.1)
-                close(ws)
-                break
-            end
-        end
-    end
-    nothing
-end
-
-t_startup::DateTime = DateTime(0)
-
 @app MyApp begin
     @in x = 1.0
     @in search = ""
@@ -65,9 +39,18 @@ t_startup::DateTime = DateTime(0)
     @onchange isready begin
         global t_startup
         if t_startup != DateTime(0)
+            println()
+            @info "Serving from $(pwd())"
             @info "Startup time: $(now() - t_startup)"
             t_startup = DateTime(0)
         end
+    end
+
+    @onchange x begin
+        global hh
+        println(x)
+        y = parse(Int, "0" * GenieSession.get(hh, :hh)[4:end]) + 1
+        GenieSession.persist(GenieSession.set!(hh, :hh, "hh_$y"))
     end
 end
 
@@ -283,9 +266,10 @@ add_css(local_material_fonts)
 ui() = UI
 
 home::Route = route("/") do
+    global hh = session()
     core_theme = false
     global model = @init(MyApp; core_theme)
-    
+    GenieSession.set!(session(), :hh, "hh")
     page(model, ui; core_theme) |> html
 end
 
@@ -344,18 +328,13 @@ gpl_css() = [style("""
 # -----------  app init -------------
 
 function __init__()
-    global t_startup = now()
-    cd(@project_path)
-    Genie.config.path_build = @project_path "build"
-    Genie.Loader.loadenv(; context = @__MODULE__)
-    up()
-
     add_css(gpl_css)
     add_css(local_material_fonts)
 
     route(home)
+
     "openbrowser" ∈ ARGS && openbrowser()
-    # @wait, interferes with GenieSession, needs to be placed outside __init__
+    @wait # seemed to interfere with GenieSession, but couldn't be reproduced with the latest version
 end
 
 # -----------  precompilation -------------
@@ -374,14 +353,11 @@ import Stipple: Genie.Assets.asset_path
 
     @init(MyApp; core_theme = false)
     route(home)
-    channel = get_channel(precompile_get("/").body |> String)
+    # this has to be called in order to initialize the assets
+    precompile_get("/")
+    # now we can call the assetfile
     precompile_get(asset_path(MyApp))
     precompile_get(asset_path(StippleUI.assets_config, :css, file = "quasar.prod"))
-    println("""
-        Precompiling WebSocket connection...
-        Please ignore a potential timeout warning!
-    """)
-    ws_send(; port, channel)
 end
 
 end # module

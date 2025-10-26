@@ -1,7 +1,7 @@
 # Draft for a New Genie Template
 
 ## Highlights
-- Largely reduced TTFX: startup time of <10s from zero to the the served page via docker, without sysimage compilation!
+- Largely reduced TTFX: startup time of <10s from zero to the the served page via docker, without sysimage compilation! (2s if called non-interactively on an M3 mac with Julia v1.12.1)
 - New `Dockerfile` and `docker-compose.yml` with cached precompilation!
 - New concept: app as a package, start by no more than `using GenieTemplate`, can be hosted on a package server
 
@@ -38,14 +38,14 @@ julia> using GenieTemplate; openbrowser()
 ```
 or outside of Julia via
 ```sh
-julia --project=path/to/GenieTemplate -e "using GenieTemplate; @wait"
+julia --project=path/to/GenieTemplate -e "using GenieTemplate"
 ```
 
 There's also a helper script `app.jl` that starts the app, so that
 ```shell
-julia --project app.jl
+julia --project app.jl [openbrowser]
 ```
-will start serving the app.
+will start serving the app - with an optional parameter openbrowser
 
 ### Deployment
 

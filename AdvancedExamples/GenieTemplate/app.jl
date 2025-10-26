@@ -1,8 +1,6 @@
-using Pkg
-
-cd(@__DIR__)
-dirname(Base.active_project()) != pwd() && Pkg.activate(@__DIR__)
+if dirname(Base.active_project()) != @__DIR__
+    using Pkg
+    Pkg.activate(@__DIR__)
+end
 
 using GenieTemplate
-
-@wait
