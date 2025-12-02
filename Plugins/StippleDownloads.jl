@@ -37,7 +37,7 @@ function () {
 
 function download_binary(model::ReactiveModel, js_data::JSONText, filename; client::Union{Nothing,UInt,Vector{UInt}} = nothing)
     # if client is specified, send only to that client (i.e. exempt all subscribed clients but the specified client)
-    run(model::ReactiveModel, js_download(js_data.s, filename, MIME("application/octet-stream")); restrict = client)
+    run(model::ReactiveModel, js_download(json(js_data), filename, MIME("application/octet-stream")); restrict = client)
 end
 
 function download_binary(model::ReactiveModel, field::Symbol, filename, array_type::Type{<:Real} = UInt8; client::Union{Nothing,UInt,Vector{UInt}} = nothing)
@@ -60,7 +60,7 @@ end
 
 function download_text(model::ReactiveModel, js_data::JSONText, filename; client::Union{Nothing,UInt,Vector{UInt}} = nothing)
     # if client is specified, send only to that client (i.e. exempt all subscribed clients but the specified client)
-    run(model::ReactiveModel, js_download(js_data.s, filename, MIME("text/plain;charset=utf-8")); restrict = client)
+    run(model::ReactiveModel, js_download(json(js_data), filename, MIME("text/plain;charset=utf-8")); restrict = client)
 end
 
 function download_text(model::ReactiveModel, field::Symbol, filename; client::Union{Nothing,UInt,Vector{UInt}} = nothing)
